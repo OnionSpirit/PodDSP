@@ -1,3 +1,0 @@
-/home/moskalev-i/CLionProjects/TestF/PodDSP/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/moskalev-i/CLionProjects/TestF/PodDSP/cmake-build-debug/CMakeFiles/poddsp.dir
-/home/moskalev-i/CLionProjects/TestF/PodDSP/cmake-build-debug/CMakeFiles/edit_cache.dir
