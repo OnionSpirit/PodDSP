@@ -169,7 +169,8 @@ TEST(complex_functions, complexPLL) {
 //    PodDSP::PlotConstructor::drawPlot(sine, "Эталон");
 
     std::vector<std::complex<float>> sine_wpo
-     = PodDSP::complexPhaseChanger(sine, 0.0f, phase_attenuation_per_sample_deg);
+     = PodDSP::complexPhaseChanger(sine, 0.0f,
+       phase_attenuation_per_sample_deg);
 //    PodDSP::PlotConstructor::drawPlot(sine_wpo, "Эталон с ошибкой");
 
     std::vector<std::complex<float>> sine_wpo_fixed
