@@ -19,4 +19,3 @@ FetchContent_MakeAvailable(liquid)
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE liquid)
-
