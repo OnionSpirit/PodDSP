@@ -8,4 +8,4 @@
    `target_include_directories(${PROJECT_NAME} PRIVATE poddsp/include)`  
    `target_link_libraries(${PROJECT_NAME} PRIVATE poddsp)`  
    
-   _It might be any executable name instead of ${PROJECT_NAME}_
+   _It might be any executable file name instead of ${PROJECT_NAME}_
