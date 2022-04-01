@@ -1,4 +1,4 @@
-# PodDSP
+# poddsp
 ## Installation
 #### 1)Clone to project repository
 

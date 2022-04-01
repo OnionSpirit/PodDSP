@@ -1,7 +1,7 @@
 #include "../include/poddsp.h"
 
 
-namespace PodDSP {
+namespace poddsp {
 
     std::complex<float> complexIntermediatePhaseCalculating(const std::vector<std::complex<float>> &samples_set) {
         int n = samples_set.size();

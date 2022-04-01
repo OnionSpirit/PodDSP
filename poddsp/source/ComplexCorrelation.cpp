@@ -1,11 +1,13 @@
 #include "../include/poddsp.h"
 
 
-namespace PodDSP {
+namespace poddsp {
 
-    std::complex<float> complexSequenceCorrelation(const std::vector<std::complex<float>> &original_sequence,
-                                                   const std::vector<std::complex<float>> &incoming_sequence)
+    std::complex<float> complexSequenceCorrelation(const std::vector<std::complex<float>> &original_seq,
+                                                   const std::vector<std::complex<float>> &incoming_seq)
                                                    noexcept {
+        std::vector<std::complex<float>> original_sequence = castToComplexSeq(original_seq);
+        std::vector<std::complex<float>> incoming_sequence = castToComplexSeq(incoming_seq);
 
         int sequence_size = (int)original_sequence.size();
         std::complex<float> correlation_result;

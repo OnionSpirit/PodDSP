@@ -1,7 +1,7 @@
 #include "../include/poddsp.h"
 
 
-namespace PodDSP {
+namespace poddsp {
 
     /// Изменяет количество комплексных семплов сигнала.
     /// Парамертры:
