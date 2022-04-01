@@ -20,6 +20,21 @@ TEST(complex_functions, complex_correlation_calculation){
     std::cout << poddsp::complexSequenceCorrelation(original_sequence, original_sequence) << std::endl;
 }
 
+TEST(complex_functions, complex_correlation_with_only_real){
+    int sequence_length = 10;
+    srand(time(nullptr));
+
+    std::vector<float> original_sequence;
+    std::vector<float> incoming_sequence;
+
+    for(int i = 0; i < sequence_length; i++){
+        original_sequence.emplace_back(RANDOM_NUMBER);
+        incoming_sequence.emplace_back(RANDOM_NUMBER);
+    }
+
+    std::cout << poddsp::complexSequenceCorrelation(original_sequence, original_sequence) << std::endl;
+}
+
 TEST(complex_functions, generating_complex_signal){
 
     auto freq = 10.0f;
