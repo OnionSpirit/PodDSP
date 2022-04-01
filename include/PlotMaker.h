@@ -24,8 +24,7 @@ namespace poddsp {
         template<typename T>
         static void drawPlot(const std::vector<T> &data,
                              const std::string &title = "NoTitle",
-                             int step = 1)
-                             noexcept {
+                             int step = 1) {
             std::ofstream datafile;
             if (typeid(T) == typeid(std::complex<float>) ||
                 typeid(T) == typeid(std::complex<double>) ||
@@ -49,8 +48,7 @@ namespace poddsp {
             fprintf(gp, "plot '%s' using 1:2 with lines \n", "plotData.dat");
             pclose(gp);
 
-            if (remove("plotData.dat")) std::filesystem::filesystem_error(ERROR_PLOT"Temporary file removing failure",
-                                                                          std::error_code());
+            if (remove("plotData.dat")) throw std::invalid_argument(ERROR_PLOT"Temporary file removing failure");
         }
 
 /// Создание проекции трёхмерного графика на одну из плоскостей. Праметры:

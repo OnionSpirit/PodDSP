@@ -11,8 +11,9 @@
 #include <filesystem>
 
 
-#include "Utils.h"
 #include "Macro.h"
+
+#include "Utils.h"
 #include "PlotMaker.h"
 #include "Phase.h"
 #include "Resampler.h"
