@@ -12,7 +12,7 @@ file(GLOB HDR include/*.h)
 add_library(${PROJECT_NAME} STATIC ${SRC} ${HDR})
 
 FetchContent_Declare(liquid
-        GIT_REPOSITORY git://github.com/jgaeddert/liquid-dsp.git
+        GIT_REPOSITORY https://github.com/jgaeddert/liquid-dsp.git
         GIT_TAG master
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/liquid-dsp)
 FetchContent_MakeAvailable(liquid)
