@@ -1,7 +1,7 @@
 #include "../include/poddsp.h"
 
 
-namespace PodDSP {
+namespace poddsp {
 
     std::vector<std::complex<float>> complexMagModulator(const std::vector<std::complex<float>> & carrier_buffer,
                                                          const std::vector<float> & info_signal,

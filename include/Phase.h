@@ -1,6 +1,6 @@
 #pragma once
 
-namespace PodDSP {
+namespace poddsp {
 
 /// Вращение фазы сигнала против часовой стрелки + CFO gen
     std::vector<std::complex<float>> complexPhaseChanger(const std::vector<std::complex<float>> &incoming_arr,
@@ -19,11 +19,4 @@ namespace PodDSP {
 /// Вычисление фазы комплексного вектора
     float complexVectorPhase(const std::complex<float> &) noexcept;
 
-    float complexMagMeasurer(const std::complex<float> &) noexcept;
-
-    float signalMaxValue(const std::vector<float> &) noexcept;
-
-    float signalMinValue(const std::vector<float> &) noexcept;
-
-    float signalMedValue(const std::vector<float> &) noexcept;
 }

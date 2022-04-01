@@ -1,7 +1,7 @@
 #include "../include/poddsp.h"
 
 
-namespace PodDSP {
+namespace poddsp {
 
     void PlotConstructor::drawComplexPlot(const std::vector<std::complex<float>> &data,
                                      const std::string &title,

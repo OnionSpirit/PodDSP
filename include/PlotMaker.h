@@ -1,6 +1,6 @@
 #pragma once
 
-namespace PodDSP {
+namespace poddsp {
 
     class PlotConstructor {
 

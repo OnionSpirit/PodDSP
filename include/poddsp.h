@@ -10,6 +10,8 @@
 #include <fstream>
 #include <filesystem>
 
+
+#include "Utils.h"
 #include "Macro.h"
 #include "PlotMaker.h"
 #include "Phase.h"

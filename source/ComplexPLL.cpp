@@ -1,7 +1,7 @@
 #include "../include/poddsp.h"
 
 
-namespace PodDSP {
+namespace poddsp {
 
     std::vector<std::complex<float>> complexPLL(const std::vector<std::complex<float>> &incoming_samples,
                                                 int region_width_for_differentiation,

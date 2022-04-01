@@ -1,6 +1,6 @@
 #pragma once
 
-namespace PodDSP{
+namespace poddsp{
     /// Коррелятор двух последовательностей семплов комплексных сигналов.
     std::complex<float> complexSequenceCorrelation(const std::vector<std::complex<float>> &,
                                                    const std::vector<std::complex<float>> &)
