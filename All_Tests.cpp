@@ -120,7 +120,7 @@ TEST(complex_functions, phase_calculator){
 TEST(complex_functions, phase_rotation){
 
     auto freq = 5.0f;
-    auto count_of_samples = 10000;
+    auto count_of_samples = 1000;
     auto phase_offset_in_time = 0.0001f;
     auto phase_common_offset = 0.0f;
     std::vector<std::complex<float>> sine;
@@ -203,6 +203,9 @@ TEST(complex_functions, complexPLL_with_modulated_signal){
 }
 
 TEST(complex_functions, BPSK){
+
+/// ToDo Fix BPSK logic fully
+
     auto freq = 10.0f;
     std::vector<bool> info_signal{false,
                                   true,
@@ -258,4 +261,29 @@ TEST(complex_functions, BPSK){
 //    PodDSP::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
 
     std::cout << std::norm(poddsp::complexSequenceCorrelation(bpsk_modulated, bpsk_modulated_wpo_fixed));
+}
+TEST(complex_functions, FFT){
+
+    auto freq = 5.0f;
+    auto info_freq = 2.0f;
+    auto count_of_samples = 100;
+    auto info_count_of_samples = 50;
+
+    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, -90);
+    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier);
+    std::vector<float> mag_modulation = poddsp::PlotConstructor::makeProjection(
+            poddsp::complexSin(info_freq, info_count_of_samples, -90));
+
+
+
+    std::vector<std::complex<float>> modulated_carrier = poddsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
+
+    std::vector<float> modulated_carrier_real = poddsp::PlotConstructor::makeProjection(modulated_carrier);
+    std::vector<float> FFT_analysis_result;
+    FFT_analysis_result.reserve(count_of_samples);
+    FFT_analysis_result = poddsp::FFT(modulated_carrier_real);
+
+//    poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
+//    poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал");
+    poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
 }

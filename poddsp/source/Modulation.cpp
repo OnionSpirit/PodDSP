@@ -3,6 +3,7 @@
 
 namespace poddsp {
 
+    /// ToDo сделать нормальную квадратурную составляющую сигнала
     std::vector<std::complex<float>> complexMagModulator(const std::vector<std::complex<float>> & carrier_buffer,
                                                          const std::vector<float> & info_signal,
                                                          const float & modulation_depth) {

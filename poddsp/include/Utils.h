@@ -34,4 +34,6 @@ namespace poddsp {
     float signalMinValue(const std::vector<float> &) noexcept;
 
     float signalMedValue(const std::vector<float> &) noexcept;
+
+    std::vector<float> FFT(const std::vector<float> &);
 }

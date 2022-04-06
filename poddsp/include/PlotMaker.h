@@ -37,6 +37,7 @@ namespace poddsp {
                 PlotConstructor::drawComplexPlot(complex_data, title, step);
                 return;
             }
+
             datafile.open("plotData.dat");
             for (int i = 0; auto e: data) {
                 datafile << i << "\t" << e << std::endl;
