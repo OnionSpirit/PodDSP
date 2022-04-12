@@ -265,7 +265,7 @@ TEST(complex_functions, BPSK){
 TEST(complex_functions, FFT){
 
     auto count_of_samples = 4096;
-    auto freq = 32.0f;
+    auto freq = 16.0f;
 
     poddsp::simpleSignal impulse = poddsp::MeanderGen(freq, count_of_samples, 0, true);
 
@@ -277,6 +277,8 @@ TEST(complex_functions, FFT){
 
     poddsp::PlotConstructor::drawPlot(impulse, "Меандр");
     poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
+
+
 }
 
 TEST(own_stuff, specturm_plots){
@@ -287,4 +289,8 @@ TEST(own_stuff, specturm_plots){
 //    poddsp::simpleSignal spectrum_one = poddsp::sampleMath(frame, eps, poddsp::squareQuadroPhaseSpectralFunc);
     poddsp::PlotConstructor::drawPlot(spectrum_zero, "Спектр прямоугольного импульса");
 //    poddsp::PlotConstructor::drawPlot(spectrum_one, "Спектр прямоугольного импульса со сдвигом по фазе");
+
+
+    poddsp::transformHilbert(spectrum_zero);
+    poddsp::PlotConstructor::drawPlot(spectrum_zero, "Спектр сигнала преобразованый");
 }

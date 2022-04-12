@@ -149,4 +149,10 @@ namespace poddsp {
         }
         return res_arr;
     }
+/// На вход принемает ссылку на массив со спектром и переворачивает его
+    void transformHilbert(std::vector<float>& signal_spectrum){
+        for(auto& e : signal_spectrum){
+            e *= -1.0f;
+        }
+    }
 }

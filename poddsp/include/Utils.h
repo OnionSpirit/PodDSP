@@ -50,4 +50,6 @@ namespace poddsp {
     float squareQuadroPhaseSpectralFunc(float);
 
     std::vector<float> sampleMath(int , float , float(*func)(float));
+
+    void transformHilbert(std::vector<float>&);
 }
