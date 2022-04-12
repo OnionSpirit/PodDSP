@@ -29,7 +29,8 @@ namespace poddsp {
             if (typeid(T) == typeid(std::complex<float>) ||
                 typeid(T) == typeid(std::complex<double>) ||
                 typeid(T) == typeid(std::complex<int>) ||
-                typeid(T) == typeid(std::complex<char>)) {
+                typeid(T) == typeid(std::complex<char>))
+            {
                 std::vector<std::complex<float>> complex_data;
                 for (auto e : data) {
                     complex_data.emplace_back(e);

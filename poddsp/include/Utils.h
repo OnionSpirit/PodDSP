@@ -2,6 +2,11 @@
 
 namespace poddsp {
 
+    using complexSignal = std::vector<std::complex<float>>;
+    using simpleSignal = std::vector<float>;
+    using complexSample = std::complex<float>;
+
+
     template<typename T>
     std::vector<std::complex<float>> castToComplexSeq(const std::vector<T> &incoming_arr) {
 
@@ -11,19 +16,20 @@ namespace poddsp {
             typeid(T) == typeid(std::complex<double>) ||
             typeid(T) == typeid(std::complex<int>) ||
             typeid(T) == typeid(std::complex<char>)) {
-            for(auto e : incoming_arr){
+            for (auto e: incoming_arr) {
                 res_arr.emplace_back(e);
             }
             return res_arr;
         }
-        if(typeid(T) == typeid(float) ||
-           typeid(T) == typeid(double) ||
-           typeid(T) == typeid(int) ||
-           typeid(T) == typeid(char)){
+        if (typeid(T) == typeid(float) ||
+            typeid(T) == typeid(double) ||
+            typeid(T) == typeid(int) ||
+            typeid(T) == typeid(char)) {
             for (auto e: incoming_arr) {
-                res_arr.emplace_back(e); res_arr.back().imag(0.0f);
+                res_arr.emplace_back(e);
+                res_arr.back().imag(0.0f);
             }
-        } else {throw std::invalid_argument(ERROR_CAST "Cant cast this type to complex array");}
+        } else { throw std::invalid_argument(ERROR_CAST "Cant cast this type to complex array"); }
         return res_arr;
     }
 
@@ -36,4 +42,12 @@ namespace poddsp {
     float signalMedValue(const std::vector<float> &) noexcept;
 
     std::vector<float> FFT(const std::vector<float> &);
+
+    void FFTAnalysis(double *AVal, double *FTvl, int Nvl, int Nft);
+
+    float squareZeroPhaseSpectralFunc(float);
+
+    float squareQuadroPhaseSpectralFunc(float);
+
+    std::vector<float> sampleMath(int , float , float(*func)(float));
 }

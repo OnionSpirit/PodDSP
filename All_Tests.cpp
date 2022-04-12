@@ -264,26 +264,27 @@ TEST(complex_functions, BPSK){
 }
 TEST(complex_functions, FFT){
 
-    auto freq = 5.0f;
-    auto info_freq = 2.0f;
-    auto count_of_samples = 100;
-    auto info_count_of_samples = 50;
+    auto count_of_samples = 4096;
+    auto freq = 32.0f;
 
-    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, -90);
-    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier);
-    std::vector<float> mag_modulation = poddsp::PlotConstructor::makeProjection(
-            poddsp::complexSin(info_freq, info_count_of_samples, -90));
+    poddsp::simpleSignal impulse = poddsp::MeanderGen(freq, count_of_samples, 0, true);
 
 
-
-    std::vector<std::complex<float>> modulated_carrier = poddsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
-
-    std::vector<float> modulated_carrier_real = poddsp::PlotConstructor::makeProjection(modulated_carrier);
     std::vector<float> FFT_analysis_result;
     FFT_analysis_result.reserve(count_of_samples);
-    FFT_analysis_result = poddsp::FFT(modulated_carrier_real);
+    FFT_analysis_result = poddsp::FFT(impulse);
 
-//    poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
-//    poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал");
+
+    poddsp::PlotConstructor::drawPlot(impulse, "Меандр");
     poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
+}
+
+TEST(own_stuff, specturm_plots){
+
+    float eps = 0.013f;
+    int frame = 2500;
+    poddsp::simpleSignal spectrum_zero = poddsp::sampleMath(frame, eps, poddsp::squareZeroPhaseSpectralFunc);
+//    poddsp::simpleSignal spectrum_one = poddsp::sampleMath(frame, eps, poddsp::squareQuadroPhaseSpectralFunc);
+    poddsp::PlotConstructor::drawPlot(spectrum_zero, "Спектр прямоугольного импульса");
+//    poddsp::PlotConstructor::drawPlot(spectrum_one, "Спектр прямоугольного импульса со сдвигом по фазе");
 }

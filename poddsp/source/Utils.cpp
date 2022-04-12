@@ -1,71 +1,89 @@
 #include "../include/poddsp.h"
 
 
-namespace poddsp{
-    
-    float complexMagMeasurer(const std::complex<float> & sample) noexcept{
+namespace poddsp {
+
+    float complexMagMeasurer(const std::complex<float> &sample) noexcept {
         float res;
-        res = sqrt(pow(sample.real(),2) + pow(sample.imag(),2));
+        res = sqrt(pow(sample.real(), 2) + pow(sample.imag(), 2));
         return res;
     }
 
-    float signalMaxValue(const std::vector<float> & arr) noexcept {
+    float signalMaxValue(const std::vector<float> &arr) noexcept {
         float res = arr[0];
-        for(auto e : arr){
-            if(res <= e){
+        for (auto e: arr) {
+            if (res <= e) {
                 res = e;
             }
         }
         return res;
     }
-    float signalMinValue(const std::vector<float> & arr) noexcept {
+
+    float signalMinValue(const std::vector<float> &arr) noexcept {
         float res = arr[0];
-        for(auto e : arr){
-            if(res >= e){
+        for (auto e: arr) {
+            if (res >= e) {
                 res = e;
             }
         }
         return res;
     }
-    float signalMedValue(const std::vector<float> & arr) noexcept {
+
+    float signalMedValue(const std::vector<float> &arr) noexcept {
         float res = 0.0f;
-        for(auto e : arr){
+        for (auto e: arr) {
             res += e;
         }
         res /= static_cast<float>(arr.size());
         return res;
     }
 
-    std::vector<float> FFT(const std::vector<float> & an_seq) {
-
-        int i, j, n, m, Mmax, Istp, Nvl;
-        float Tmpr, Tmpi, Wtmp, Theta;
-        float Wpr, Wpi, Wr, Wi;
+    std::vector<float> FFT(const std::vector<float> &an_seq) {
 
         std::vector<float> res_arr;
-        std::vector<float> Tmvl;
+        int arr_length = static_cast<int>(an_seq.size());
+        res_arr.reserve(arr_length);
 
-        Nvl = static_cast<int>(an_seq.size());
-//
-        if(((Nvl << 1)>>1) != Nvl)
-            Nvl--;
-//
-        n = Nvl * 2;
-        Tmvl.reserve(n);
-        res_arr.reserve(Nvl);
+        auto* input_arr = new double[arr_length];
+        for(int i = 0; i < arr_length; i++) {
+            input_arr[i] = an_seq.at(i);
+        }
+
+        auto* output_arr = new double[arr_length];
+
+        FFTAnalysis(input_arr, output_arr, arr_length, arr_length);
+
+        for(auto i = 0; i < arr_length; i++){
+            res_arr.emplace_back(output_arr[i]);
+        }
+
+
+        delete [] input_arr;
+        delete [] output_arr;
+
+        res_arr.resize(arr_length/2);
+
+        return res_arr;
+    }
+
+    void FFTAnalysis(double *AVal, double *FTvl, int Nvl, int Nft) {
+        int i, j, n, m, Mmax, Istp;
+        double Tmpr, Tmpi, Wtmp, Theta;
+        double Wpr, Wpi, Wr, Wi;
+        double *Tmvl;
+
+        n = Nvl * 2; Tmvl = new double[n];
 
         for (i = 0; i < n; i+=2) {
-            Tmvl.emplace_back(0.0f);
-            Tmvl.emplace_back(an_seq[i / 2]);
+            Tmvl[i] = 0;
+            Tmvl[i+1] = AVal[i/2];
         }
 
         i = 1; j = 1;
         while (i < n) {
             if (j > i) {
-                std::swap(Tmvl[i],Tmvl[j]);
-                std::swap(Tmvl[i+1],Tmvl[j+1]);
-//                Tmpr = Tmvl[i]; Tmvl[i] = Tmvl[j]; Tmvl[j] = Tmpr;
-//                Tmpr = Tmvl[i+1]; Tmvl[i+1] = Tmvl[j+1]; Tmvl[j+1] = Tmpr;
+                Tmpr = Tmvl[i]; Tmvl[i] = Tmvl[j]; Tmvl[j] = Tmpr;
+                Tmpr = Tmvl[i+1]; Tmvl[i+1] = Tmvl[j+1]; Tmvl[j+1] = Tmpr;
             }
             i = i + 2; m = Nvl;
             while ((m >= 2) && (j > m)) {
@@ -76,15 +94,9 @@ namespace poddsp{
 
         Mmax = 2;
         while (n > Mmax) {
-
-            Theta = static_cast<float>(-(2 * M_PI) / Mmax);
-            Wpi = static_cast<float>(sin(static_cast<double>(Theta)));
-            Wtmp = static_cast<float>(sin(static_cast<double>(Theta / 2.0f)));
-            Wpr = Wtmp * Wtmp * 2;
-            Istp = Mmax * 2;
-            Wr = 1;
-            Wi = 0;
-            m = 1;
+            Theta = -2*M_PI / Mmax; Wpi = sin(Theta);
+            Wtmp = sin(Theta / 2); Wpr = Wtmp * Wtmp * 2;
+            Istp = Mmax * 2; Wr = 1; Wi = 0; m = 1;
 
             while (m < Mmax) {
                 i = m; m = m + 2; Tmpr = Wr; Tmpi = Wi;
@@ -105,16 +117,36 @@ namespace poddsp{
             Mmax = Istp;
         }
 
-
-        for (i = 0; i < Nvl; i++) {
-            j = i * 2;
-            res_arr.emplace_back(2.0f * static_cast<float>(sqrt(pow(Tmvl[j], 2)) + pow(Tmvl[j + 1], 2)) / static_cast<float>(Nvl));
+        for (i = 0; i < Nft; i++) {
+            j = i * 2; FTvl[i] = 2*sqrt(pow(Tmvl[j],2) + pow(Tmvl[j+1],2))/Nvl;
         }
 
-        size_t tmvl_size = Tmvl.size();
-        size_t res_arr_size = res_arr.size();
+        delete []Tmvl;
+    }
 
+    float squareZeroPhaseSpectralFunc(float t){
+        auto jr = std::complex<float>{1, 0};
+        auto j = std::complex<float>{0, 1};
+        return ((jr / (j * t)) * (jr - jr * exp(-j * t))).real();
+    }
 
+    float squareQuadroPhaseSpectralFunc(float t){
+        auto jr = poddsp::complexSample{1, 0};
+        auto j = poddsp::complexSample{0, 1};
+        return ((exp(-j * t * 0.5f) / (j * t)) * (jr - jr * exp(-j * t))).real();
+    }
+
+    std::vector<float> sampleMath(int definition, float eps, float(*func)(float)){
+
+        poddsp::simpleSignal res_arr;
+        auto t = float();
+
+        t -= eps*(static_cast<float>(definition)/2.0f);
+
+        for(int i = 0; i < definition; i++){
+            t += eps;
+            res_arr.emplace_back(func(t));
+        }
         return res_arr;
     }
 }
