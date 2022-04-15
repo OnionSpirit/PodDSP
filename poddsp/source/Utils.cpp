@@ -38,121 +38,93 @@ namespace poddsp {
         return res;
     }
 
-    std::vector<float> FFT(const std::vector<float> &an_seq) {
+    template<typename T>
+    std::complex<T> complexSgn(std::complex<T> sample){
+
+        auto arg = complexMagMeasurer(sample);
+        if(arg == 0)
+            return sample;
+        return sample/fabsf(arg);
+    }
+
+    template<typename T>
+    T simpleSgn(T n) {
+        return (((n<0)*-1) | (n>0));
+    }
+
+    std::vector<float> forwardFFT(const std::vector<float> &an_seq) {
+
+        auto length = static_cast<int>(an_seq.size());
+        std::vector<std::complex<float>> intrm_arr;
+        intrm_arr.resize(length);
+
+        auto forward_FFT =  fftwf_plan_dft_1d(length, (fftwf_complex *)(intrm_arr.data()),
+                                             (fftwf_complex *)(intrm_arr.data()), FFTW_FORWARD, FFTW_ESTIMATE);
+
+        for(int i = 0; i < length; i++){
+            intrm_arr[i] = -std::complex<float>(an_seq[i], 0);
+        }
+
+        fftwf_execute(forward_FFT);
+        fftwf_destroy_plan(forward_FFT);
+        fftwf_cleanup();
 
         std::vector<float> res_arr;
-        int arr_length = static_cast<int>(an_seq.size());
-        res_arr.reserve(arr_length);
 
-        auto* input_arr = new double[arr_length];
-        for(int i = 0; i < arr_length; i++) {
-            input_arr[i] = an_seq.at(i);
+        for(int i = 0; i < length; i++){
+            res_arr.emplace_back(static_cast<float>(intrm_arr[i].imag()));
         }
-
-        auto* output_arr = new double[arr_length];
-
-        FFTAnalysis(input_arr, output_arr, arr_length, arr_length);
-
-        for(auto i = 0; i < arr_length; i++){
-            res_arr.emplace_back(output_arr[i]);
-        }
-
-
-        delete [] input_arr;
-        delete [] output_arr;
-
-        res_arr.resize(arr_length/2);
 
         return res_arr;
     }
 
-    void FFTAnalysis(double *AVal, double *FTvl, int Nvl, int Nft) {
-        int i, j, n, m, Mmax, Istp;
-        double Tmpr, Tmpi, Wtmp, Theta;
-        double Wpr, Wpi, Wr, Wi;
-        double *Tmvl;
+    std::vector<float> backwardFFT(const std::vector<float> &an_seq) {
 
-        n = Nvl * 2; Tmvl = new double[n];
+        auto length = static_cast<int>(an_seq.size());
+        std::vector<std::complex<float>> intrm_arr;
+        intrm_arr.resize(length);
 
-        for (i = 0; i < n; i+=2) {
-            Tmvl[i] = 0;
-            Tmvl[i+1] = AVal[i/2];
+        auto backward_FFT =  fftwf_plan_dft_1d(length, (fftwf_complex *)(intrm_arr.data()),
+                                              (fftwf_complex *)(intrm_arr.data()), FFTW_BACKWARD, FFTW_ESTIMATE);
+
+        for(int i = 0; i < length; i++){
+            intrm_arr[i] = std::complex<float>(an_seq[i], 0);
         }
 
-        i = 1; j = 1;
-        while (i < n) {
-            if (j > i) {
-                Tmpr = Tmvl[i]; Tmvl[i] = Tmvl[j]; Tmvl[j] = Tmpr;
-                Tmpr = Tmvl[i+1]; Tmvl[i+1] = Tmvl[j+1]; Tmvl[j+1] = Tmpr;
-            }
-            i = i + 2; m = Nvl;
-            while ((m >= 2) && (j > m)) {
-                j = j - m; m = m >> 1;
-            }
-            j = j + m;
+        fftwf_execute(backward_FFT);
+        fftwf_destroy_plan(backward_FFT);
+        fftwf_cleanup();
+
+        std::vector<float> res_arr;
+
+        for(int i = 0; i < length; i++){
+            res_arr.emplace_back(static_cast<float>(intrm_arr[i].imag()));
         }
 
-        Mmax = 2;
-        while (n > Mmax) {
-            Theta = -2*M_PI / Mmax; Wpi = sin(Theta);
-            Wtmp = sin(Theta / 2); Wpr = Wtmp * Wtmp * 2;
-            Istp = Mmax * 2; Wr = 1; Wi = 0; m = 1;
-
-            while (m < Mmax) {
-                i = m; m = m + 2; Tmpr = Wr; Tmpi = Wi;
-                Wr = Wr - Tmpr * Wpr - Tmpi * Wpi;
-                Wi = Wi + Tmpr * Wpi - Tmpi * Wpr;
-
-                while (i < n) {
-                    j = i + Mmax;
-                    Tmpr = Wr * Tmvl[j] - Wi * Tmvl[j-1];
-                    Tmpi = Wi * Tmvl[j] + Wr * Tmvl[j-1];
-
-                    Tmvl[j] = Tmvl[i] - Tmpr; Tmvl[j-1] = Tmvl[i-1] - Tmpi;
-                    Tmvl[i] = Tmvl[i] + Tmpr; Tmvl[i-1] = Tmvl[i-1] + Tmpi;
-                    i = i + Istp;
-                }
-            }
-
-            Mmax = Istp;
-        }
-
-        for (i = 0; i < Nft; i++) {
-            j = i * 2; FTvl[i] = 2*sqrt(pow(Tmvl[j],2) + pow(Tmvl[j+1],2))/Nvl;
-        }
-
-        delete []Tmvl;
-    }
-
-    float squareZeroPhaseSpectralFunc(float t){
-        auto jr = std::complex<float>{1, 0};
-        auto j = std::complex<float>{0, 1};
-        return ((jr / (j * t)) * (jr - jr * exp(-j * t))).real();
-    }
-
-    float squareQuadroPhaseSpectralFunc(float t){
-        auto jr = poddsp::complexSample{1, 0};
-        auto j = poddsp::complexSample{0, 1};
-        return ((exp(-j * t * 0.5f) / (j * t)) * (jr - jr * exp(-j * t))).real();
-    }
-
-    std::vector<float> sampleMath(int definition, float eps, float(*func)(float)){
-
-        poddsp::simpleSignal res_arr;
-        auto t = float();
-
-        t -= eps*(static_cast<float>(definition)/2.0f);
-
-        for(int i = 0; i < definition; i++){
-            t += eps;
-            res_arr.emplace_back(func(t));
-        }
         return res_arr;
     }
-/// На вход принемает ссылку на массив со спектром и переворачивает его
-    void transformHilbert(std::vector<float>& signal_spectrum){
-        for(auto& e : signal_spectrum){
-            e *= -1.0f;
+
+/// На вход принимает массив с сигналом и сдвигает его на 90 градусов
+    std::vector<float> transformHilbert(const std::vector<float>& signal){
+
+        int count_of_samples = static_cast<int>(signal.size());
+        std::vector<std::complex<float>> intrm_arr; intrm_arr.reserve(count_of_samples);
+        std::vector<float> spectrum = forwardFFT(signal);
+
+        {
+            auto Im_one = std::complex<float>{0, 1};
+
+            for (int i = -count_of_samples/2; i < count_of_samples/2; i++) {
+                intrm_arr.emplace_back(-Im_one * simpleSgn(static_cast<float>(i))* spectrum[i + count_of_samples/2]);
+                intrm_arr.back() /= static_cast<float>(count_of_samples);
+            }
         }
+        simpleSignal res_arr; res_arr.reserve(count_of_samples);
+/// нет записи
+        for(auto e : intrm_arr){
+            res_arr.emplace_back(e.real());
+        }
+
+        return res_arr;
     }
 }

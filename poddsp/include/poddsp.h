@@ -9,6 +9,7 @@
 #include <typeinfo>
 #include <fstream>
 #include <filesystem>
+#include <fftw3.h>
 
 
 #include "Macro.h"

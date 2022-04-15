@@ -41,15 +41,15 @@ namespace poddsp {
 
     float signalMedValue(const std::vector<float> &) noexcept;
 
-    std::vector<float> FFT(const std::vector<float> &);
+    std::vector<float> forwardFFT(const std::vector<float> &);
 
-    void FFTAnalysis(double *AVal, double *FTvl, int Nvl, int Nft);
+    std::vector<float> backwardFFT(const std::vector<float> &);
 
-    float squareZeroPhaseSpectralFunc(float);
+    template<typename T>
+    std::complex<T> complexSgn(std::complex<T>);
 
-    float squareQuadroPhaseSpectralFunc(float);
+    template<typename T>
+    T simpleSgn(T);
 
-    std::vector<float> sampleMath(int , float , float(*func)(float));
-
-    void transformHilbert(std::vector<float>&);
+    std::vector<float> transformHilbert(const std::vector<float>&);
 }

@@ -262,9 +262,10 @@ TEST(complex_functions, BPSK){
 
     std::cout << std::norm(poddsp::complexSequenceCorrelation(bpsk_modulated, bpsk_modulated_wpo_fixed));
 }
+
 TEST(complex_functions, FFT){
 
-    auto count_of_samples = 4096;
+    auto count_of_samples = 2000;
     auto freq = 16.0f;
 
     poddsp::simpleSignal impulse = poddsp::MeanderGen(freq, count_of_samples, 0, true);
@@ -272,25 +273,82 @@ TEST(complex_functions, FFT){
 
     std::vector<float> FFT_analysis_result;
     FFT_analysis_result.reserve(count_of_samples);
-    FFT_analysis_result = poddsp::FFT(impulse);
+    FFT_analysis_result = poddsp::forwardFFT(impulse);
 
 
     poddsp::PlotConstructor::drawPlot(impulse, "Меандр");
     poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
+
+    FFT_analysis_result = poddsp::backwardFFT(FFT_analysis_result);
+
+    poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Опять сигнал");
 
 
 }
 
 TEST(own_stuff, specturm_plots){
 
-    float eps = 0.013f;
-    int frame = 2500;
-    poddsp::simpleSignal spectrum_zero = poddsp::sampleMath(frame, eps, poddsp::squareZeroPhaseSpectralFunc);
-//    poddsp::simpleSignal spectrum_one = poddsp::sampleMath(frame, eps, poddsp::squareQuadroPhaseSpectralFunc);
-    poddsp::PlotConstructor::drawPlot(spectrum_zero, "Спектр прямоугольного импульса");
-//    poddsp::PlotConstructor::drawPlot(spectrum_one, "Спектр прямоугольного импульса со сдвигом по фазе");
+    auto freq = 4.0f;
+    auto count_of_samples = 2000;
 
+    poddsp::simpleSignal Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples));
+    poddsp::PlotConstructor::drawPlot(Sine, "Исходный сигнал");
 
-    poddsp::transformHilbert(spectrum_zero);
-    poddsp::PlotConstructor::drawPlot(spectrum_zero, "Спектр сигнала преобразованый");
+    auto Rotated_sine = poddsp::forwardFFT(Sine);
+    poddsp::PlotConstructor::drawPlot(Rotated_sine, "Повёрнутый сигнал");
+}
+
+template<typename T>
+T simpleSgn(T n) {
+    return (((n<0)*-1) | (n>0));
+}
+
+TEST(own_stuff, hilbert_transform){
+    const auto freq = 4.0f;
+    const auto count_of_samples = 4000;
+
+    poddsp::simpleSignal Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples, -90));
+
+//    std::vector<std::complex<float>> buff;
+//    buff.resize(count_of_samples);
+//
+//    auto forward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(buff.data()),
+//                                          (fftwf_complex *)(buff.data()), FFTW_FORWARD, FFTW_ESTIMATE);
+//
+//    auto backward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(buff.data()),
+//                                           (fftwf_complex *)(buff.data()), FFTW_BACKWARD, FFTW_ESTIMATE);
+//
+//
+//    for(int i = 0; i < count_of_samples; i++){
+//        buff[i] = std::complex<float>{Sine[i] , 0};
+//    }
+//
+//    fftwf_execute(forward_FFT);
+//
+//    {
+//        auto Im_one = std::complex<float>{0, 1};
+//
+//        for (int i = -count_of_samples/2; i < count_of_samples/2; i++) {
+//            buff[i + count_of_samples/2] = -Im_one * simpleSgn(static_cast<float>(i)) * buff[i + count_of_samples/2];
+//            buff[i + count_of_samples/2] /= static_cast<float>(count_of_samples);
+//        }
+//    }
+//
+//    fftwf_execute(backward_FFT);
+//
+//    fftwf_destroy_plan(forward_FFT);
+//    fftwf_destroy_plan(backward_FFT);
+//
+//    fftwf_cleanup();
+//
+//    poddsp::simpleSignal Hilberted; Hilberted.reserve(count_of_samples);
+//    for(auto e : buff){
+//        Hilberted.emplace_back(e.real());
+//    }
+
+    poddsp::simpleSignal Hilberted = poddsp::transformHilbert(Sine);
+
+    poddsp::PlotConstructor::drawPlot(Sine, "Source sine");
+    poddsp::PlotConstructor::drawPlot(Hilberted, "Hilbert transformed sine");
+
 }
