@@ -12,7 +12,7 @@ namespace poddsp {
 /// Вычисление разности фаз между первым и вторым комплексным сигналом (в градусах)
     float complexPhaseCalculating(const std::vector<std::complex<float>> &,
                                   const std::vector<std::complex<float>> &)
-                                  noexcept;
+    noexcept;
 
     std::vector<float> complexSignalPhaseDependence(const std::vector<std::complex<float>> &);
 

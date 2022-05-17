@@ -4,7 +4,7 @@ namespace poddsp {
 
     std::vector<std::complex<float>> complexCFOCompensator(const std::vector<std::complex<float>> &,
                                                            const float &)
-                                                           noexcept;
+    noexcept;
 
     std::vector<float> differentiation(const std::vector<float> &);
 

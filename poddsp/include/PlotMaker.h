@@ -8,7 +8,7 @@ namespace poddsp {
         static void drawComplexPlot(const std::vector<std::complex<float>> &,
                                     const std::string & = "NoTitle",
                                     int = 1)
-                                    noexcept;
+        noexcept;
 
     public:
         enum type_of_projection {

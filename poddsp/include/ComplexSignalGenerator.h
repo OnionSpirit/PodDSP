@@ -11,7 +11,7 @@ namespace poddsp {
 
     std::vector<float> signalShelf(const std::vector<float> &,
                                    const float &)
-                                   noexcept;
+    noexcept;
 /// Генератор одиночно импульса единичного уровня. Параметры
 /// 1) Ширина импульса,
 /// 2) Задержка,
