@@ -11,16 +11,20 @@ namespace poddsp {
             throw std::invalid_argument(ERROR_MAG_MODULATOR"modulation depth is too far from [0; 1] interval");
         }
         std::vector<std::complex<float>> res_arr;
+        std::vector<float> intrm_arr;
 
         std::vector<std::complex<float>> information_signal_complex;
         std::vector<float> information_signal;
         std::vector<std::complex<float>> info_signal_complex;
         info_signal_complex.reserve(info_signal.size());
+
         for(auto e : info_signal){
             info_signal_complex.emplace_back(std::complex<float>{e, 0});
         }
+
         complexSignalResampler(info_signal_complex, information_signal_complex, static_cast<int>(carrier_buffer.size()));
         information_signal.reserve(information_signal_complex.size());
+
         for(auto e : information_signal_complex){
             information_signal.emplace_back(e.real());
         }
@@ -39,6 +43,12 @@ namespace poddsp {
                     mag * static_cast<float>(cos(static_cast<double>(current_phase))),
                     mag * static_cast<float>(sin(static_cast<double>(current_phase)))});
         }
+
+        for(auto e : res_arr){
+            intrm_arr.emplace_back(e.real());
+        }
+        res_arr = quadro_cast(intrm_arr);
+
         return res_arr;
     }
 
@@ -53,56 +63,36 @@ namespace poddsp {
         return res_arr;
     }
 
-    std::vector<std::complex<float>> complexBPSKModulator(const std::vector<std::complex<float>> &carrier,
-                                                          const std::vector<bool> &info_seq){
+    std::vector<std::complex<float>> complexBPSKModulator(const std::vector<bool> &info_seq, const int & samples_per_symbol){
         std::vector<float> inter_res_arr;
         std::vector<std::complex<float>> res_arr;
-        int periods_counter = 0;
 
-        {
-            std::vector<float> phase_dependence = complexSignalPhaseDependence(carrier);
-            float curr_diff;
+        int periods_counter = static_cast<int>(info_seq.size());
 
-            for (int i = 0; i < phase_dependence.size(); i++) {
-                if (i + 1 == phase_dependence.size()) {
-                    break;
-                }
-                curr_diff = ((phase_dependence[i + 1] - phase_dependence[i]));
-                if (fabsf(curr_diff) > 3+M_PI/2) periods_counter++;
-            }
-        }
-
-        if(periods_counter != info_seq.size() - 1){
-            throw std::invalid_argument(ERROR_BPSK_MODUlATOR "Modulation sequence must be equal to count of periods in carrier frame");
-        }
+        std::vector<float> carrier = PlotConstructor::makeProjection(
+                complexSin(static_cast<float>(periods_counter),
+                    periods_counter*samples_per_symbol, -90));
 
         auto modulation_step = static_cast<float>(carrier.size()) / static_cast<float>(periods_counter);
 
-
-        for(int i = 0; i < info_seq.size(); i++){
+        for(int i = 0; i < periods_counter; i++){
             if(!info_seq[i]){
-                for(int j = 0; j < static_cast<int>(modulation_step); j++){
-                    inter_res_arr.emplace_back(-carrier[i * static_cast<int>(modulation_step) + j].real());
-//                        res_arr.emplace_back(std::complex<float>{-carrier[i * static_cast<int>(modulation_step) + j].real(),
-//                                                                 -carrier[i * static_cast<int>(modulation_step) + j - static_cast<int>(modulation_step)/4].imag()});
+                for (int j = 0; j < static_cast<int>(modulation_step); j++) {
+                    if (i * static_cast<int>(modulation_step) + j > carrier.size()) break;
+                    inter_res_arr.emplace_back(-carrier[i * static_cast<int>(modulation_step) + j]);
                 }
-            } else {
-                for(int j = 0; j < static_cast<int>(modulation_step); j++){
-                    inter_res_arr.emplace_back(carrier[i * static_cast<int>(modulation_step) + j].real());
-//                    res_arr.emplace_back(std::complex<float>{carrier[i * static_cast<int>(modulation_step) + j].real(),
-//                                                             carrier[i * static_cast<int>(modulation_step) + j - static_cast<int>(modulation_step)/4].imag()});
+            } else{
+                for (int j = 0; j < static_cast<int>(modulation_step); j++) {
+                    if (i * static_cast<int>(modulation_step) + j > carrier.size()) break;
+                    inter_res_arr.emplace_back(carrier[i * static_cast<int>(modulation_step) + j]);
                 }
             }
-        }
-
-        for(int i = 0; i < info_seq.size() - 2; i++){
-            for(int j = 0; j < static_cast<int>(modulation_step); j++){
-                if(i - 1 < 0) continue;
-                res_arr.emplace_back(std::complex<float>{inter_res_arr[i * static_cast<int>(modulation_step) + j],
-                                                         inter_res_arr[i * static_cast<int>(modulation_step) + j + static_cast<int>(modulation_step)/4]});
+            for(auto arr = quadro_cast(inter_res_arr); auto e : arr){
+                res_arr.emplace_back(e);
             }
+            inter_res_arr = std::vector<float>();
         }
-
+//        res_arr = quadro_cast(inter_res_arr);
         return res_arr;
     }
 }

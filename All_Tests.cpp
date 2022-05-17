@@ -20,21 +20,6 @@ TEST(complex_functions, complex_correlation_calculation){
     std::cout << poddsp::complexSequenceCorrelation(original_sequence, original_sequence) << std::endl;
 }
 
-TEST(complex_functions, complex_correlation_with_only_real){
-    int sequence_length = 10;
-    srand(time(nullptr));
-
-    std::vector<float> original_sequence;
-    std::vector<float> incoming_sequence;
-
-    for(int i = 0; i < sequence_length; i++){
-        original_sequence.emplace_back(RANDOM_NUMBER);
-        incoming_sequence.emplace_back(RANDOM_NUMBER);
-    }
-
-    std::cout << poddsp::complexSequenceCorrelation(original_sequence, original_sequence) << std::endl;
-}
-
 TEST(complex_functions, generating_complex_signal){
 
     auto freq = 10.0f;
@@ -144,13 +129,13 @@ TEST(complex_functions, complexPLL) {
     auto count_of_samples = 2000;
     auto phase_attenuation_per_sample_deg = -0.003f;
 
-    std::vector<std::complex<float>> sine = poddsp::complexSin(freq, count_of_samples, 2);
+    std::vector<std::complex<float>> sine = poddsp::complexSin(freq, count_of_samples);
 //    PodDSP::PlotConstructor::drawPlot(sine, "Эталон");
 
     std::vector<std::complex<float>> sine_wpo = poddsp::complexPhaseChanger(sine, 0.0f, phase_attenuation_per_sample_deg);
 //    PodDSP::PlotConstructor::drawPlot(sine_wpo, "Эталон с ошибкой");
 
-    std::vector<std::complex<float>> sine_wpo_fixed = poddsp::complexPLL(sine_wpo, count_of_samples / (int)freq, 3);
+    std::vector<std::complex<float>> sine_wpo_fixed = poddsp::complexPLL(sine_wpo, 1);
 //    PodDSP::PlotConstructor::drawPlot(sine_wpo_fixed, "Работа ФАПЧ с ошибочным сигналом");
 
     std::vector<float> sine_real = poddsp::PlotConstructor::makeProjection(sine,
@@ -169,13 +154,13 @@ TEST(complex_functions, complexPLL) {
 }
 
 TEST(complex_functions, complexPLL_with_modulated_signal){
-    auto freq = 40.0f;
+    auto freq = 12.0f;
     auto info_freq = 4.0f;
-    auto count_of_samples = 4000;
+    auto count_of_samples = 2000;
     auto info_count_of_samples = 1000;
-    auto phase_attenuation_per_sample_deg = -0.003f;
+    auto phase_attenuation_per_sample_deg = 0.001f;
 
-    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, -90);
+    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, 0);
     std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier,
                                                                                       poddsp::PlotConstructor::type_of_projection::real_projection);
     std::vector<float> mag_modulation = poddsp::PlotConstructor::makeProjection(
@@ -183,26 +168,56 @@ TEST(complex_functions, complexPLL_with_modulated_signal){
     poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
 
     std::vector<std::complex<float>> modulated_carrier = poddsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
-    std::vector<float> modulated_carrier_real = poddsp::PlotConstructor::makeProjection(modulated_carrier);
+    std::vector<float> modulated_carrier_real = poddsp::PlotConstructor::makeProjection(modulated_carrier, poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+    std::vector<float> modulated_carrier_imag = poddsp::PlotConstructor::makeProjection(modulated_carrier);
 
     poddsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Проекция действительной части)");
+    poddsp::PlotConstructor::drawPlot(modulated_carrier, "Амплитудно модулированный сигнал");
     poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
+    poddsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
 
     std::vector<std::complex<float>> modulated_carrier_wpo = poddsp::complexPhaseChanger(modulated_carrier, 0.0f,
                                                                                          phase_attenuation_per_sample_deg);
     std::vector<float> modulated_carrier_wpo_real = poddsp::PlotConstructor::makeProjection(modulated_carrier_wpo);
     poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_real, "Амплитудно модулированный сигнал с ошибкой (Проекция действительной части)");
-
-    std::vector<std::complex<float>> modulated_carrier_wpo_fixed = poddsp::complexPLL(modulated_carrier_wpo, count_of_samples / (int)info_freq, 3);
+//
+    std::vector<std::complex<float>> modulated_carrier_wpo_fixed = poddsp::complexPLL(modulated_carrier_wpo, 1);
     std::vector<float> modulated_carrier_wpo_fixed_real = poddsp::PlotConstructor::makeProjection(modulated_carrier_wpo_fixed);
     poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_real, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция действительной части)");
-    std::cout << std::norm(poddsp::complexSequenceCorrelation(modulated_carrier, modulated_carrier_wpo_fixed));
+//    std::cout << std::norm(poddsp::complexSequenceCorrelation(modulated_carrier, modulated_carrier_wpo_fixed));
 
     std::vector<float> mag_demodulation_result = poddsp::complexMagDemodulator(modulated_carrier_wpo_fixed);
     poddsp::PlotConstructor::drawPlot(mag_demodulation_result, "Информационный сигнал из демодулятора");
 }
 
-TEST(complex_functions, BPSK){
+TEST(complex_functions, BPSK_Modulation){
+    auto freq = 10.0f;
+
+    std::vector<bool> info_signal;
+    for(int i = 0; i < static_cast<int>(freq); i++){
+        if(RANDOM_NUMBER >= 5){
+            info_signal.emplace_back(true);
+        }else{
+            info_signal.emplace_back(false);
+        }
+    }
+
+    std::vector<std::complex<float>> bpsk_modulated = poddsp::complexBPSKModulator(info_signal, 100);
+    std::vector<float> bpsk_modulated_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated);
+    std::vector<float> bpsk_modulated_imag = poddsp::PlotConstructor::makeProjection(bpsk_modulated,
+                                                                                     poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+
+    poddsp::PlotConstructor::drawPlot(bpsk_modulated, "BPSK модулированный сигнал");
+//    poddsp::PlotConstructor::drawPlot(poddsp::complexSignalPhaseDependence(bpsk_modulated), "Зависимость фазы");
+    poddsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
+    poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
+
+    for(auto e : info_signal){
+        std::cout << e << "\t";
+    }
+}
+
+TEST(complex_functions, BPSK_with_PLL){
 
 /// ToDo Fix BPSK logic fully
 
@@ -216,19 +231,18 @@ TEST(complex_functions, BPSK){
                                   true,
                                   true,
                                   true,
-                                  false,
-                                  true};
-    auto count_of_samples = 1000;
-    auto phase_attenuation_per_sample_deg = -0.003f;
+                                  false};
+//    auto count_of_samples = 1000;
+    auto phase_attenuation_per_sample_deg = 0.003f;
 
-    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, -90);
-    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier,
-                                                                                      poddsp::PlotConstructor::type_of_projection::real_projection);
+//    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, -90);
+//    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier,
+//                                                                                      poddsp::PlotConstructor::type_of_projection::real_projection);
+//
+//    std::vector<float> complex_carrier_imag = poddsp::PlotConstructor::makeProjection(complex_carrier,
+//                                                                                      poddsp::PlotConstructor::type_of_projection::imaginary_projection);
 
-    std::vector<float> complex_carrier_imag = poddsp::PlotConstructor::makeProjection(complex_carrier,
-                                                                                      poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-
-    std::vector<std::complex<float>> bpsk_modulated = poddsp::complexBPSKModulator(complex_carrier, info_signal);
+    std::vector<std::complex<float>> bpsk_modulated = poddsp::complexBPSKModulator(info_signal);
     std::vector<float> bpsk_modulated_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated,
                                                                                      poddsp::PlotConstructor::type_of_projection::real_projection);
 
@@ -241,12 +255,12 @@ TEST(complex_functions, BPSK){
     std::vector<float> bpsk_modulated_wpo_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated_wpo,
                                                                                          poddsp::PlotConstructor::type_of_projection::real_projection);
 
-    std::vector<std::complex<float>> bpsk_modulated_wpo_fixed = poddsp::complexPLL(bpsk_modulated_wpo, count_of_samples / (int)freq);
+    std::vector<std::complex<float>> bpsk_modulated_wpo_fixed = poddsp::complexPLL(bpsk_modulated_wpo);
 
     std::vector<float> bpsk_modulated_wpo_fixed_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated_wpo_fixed,
                                                                                                poddsp::PlotConstructor::type_of_projection::real_projection);
 
-    std::vector<float> bpsk_phase_function = poddsp::complexSignalPhaseDependence(bpsk_modulated);
+//    std::vector<float> bpsk_phase_function = poddsp::complexSignalPhaseDependence(bpsk_modulated);
 
 
 //    PodDSP::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Действительная часть)");
@@ -255,15 +269,15 @@ TEST(complex_functions, BPSK){
 
     poddsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
     poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
-    poddsp::PlotConstructor::drawPlot(bpsk_phase_function, "Изменение фазы в BPSK сигнале");
+//    poddsp::PlotConstructor::drawPlot(bpsk_phase_function, "Изменение фазы в BPSK сигнале");
 //
-//    PodDSP::PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
-//    PodDSP::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
+//    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
+//    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
 
     std::cout << std::norm(poddsp::complexSequenceCorrelation(bpsk_modulated, bpsk_modulated_wpo_fixed));
 }
 
-TEST(complex_functions, FFT){
+TEST(transform, FFT){
 
     auto count_of_samples = 2000;
     auto freq = 16.0f;
@@ -286,7 +300,7 @@ TEST(complex_functions, FFT){
 
 }
 
-TEST(own_stuff, specturm_plots){
+TEST(transform, specturm_plots){
 
     auto freq = 4.0f;
     auto count_of_samples = 2000;
@@ -298,57 +312,29 @@ TEST(own_stuff, specturm_plots){
     poddsp::PlotConstructor::drawPlot(Rotated_sine, "Повёрнутый сигнал");
 }
 
-template<typename T>
-T simpleSgn(T n) {
-    return (((n<0)*-1) | (n>0));
-}
 
-TEST(own_stuff, hilbert_transform){
+TEST(transform, hilbert_transform){
     const auto freq = 4.0f;
     const auto count_of_samples = 4000;
 
-    poddsp::simpleSignal Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples, -90));
-
-//    std::vector<std::complex<float>> buff;
-//    buff.resize(count_of_samples);
-//
-//    auto forward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(buff.data()),
-//                                          (fftwf_complex *)(buff.data()), FFTW_FORWARD, FFTW_ESTIMATE);
-//
-//    auto backward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(buff.data()),
-//                                           (fftwf_complex *)(buff.data()), FFTW_BACKWARD, FFTW_ESTIMATE);
-//
-//
-//    for(int i = 0; i < count_of_samples; i++){
-//        buff[i] = std::complex<float>{Sine[i] , 0};
-//    }
-//
-//    fftwf_execute(forward_FFT);
-//
-//    {
-//        auto Im_one = std::complex<float>{0, 1};
-//
-//        for (int i = -count_of_samples/2; i < count_of_samples/2; i++) {
-//            buff[i + count_of_samples/2] = -Im_one * simpleSgn(static_cast<float>(i)) * buff[i + count_of_samples/2];
-//            buff[i + count_of_samples/2] /= static_cast<float>(count_of_samples);
-//        }
-//    }
-//
-//    fftwf_execute(backward_FFT);
-//
-//    fftwf_destroy_plan(forward_FFT);
-//    fftwf_destroy_plan(backward_FFT);
-//
-//    fftwf_cleanup();
-//
-//    poddsp::simpleSignal Hilberted; Hilberted.reserve(count_of_samples);
-//    for(auto e : buff){
-//        Hilberted.emplace_back(e.real());
-//    }
-
+    poddsp::simpleSignal Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples, 0));
     poddsp::simpleSignal Hilberted = poddsp::transformHilbert(Sine);
 
     poddsp::PlotConstructor::drawPlot(Sine, "Source sine");
     poddsp::PlotConstructor::drawPlot(Hilberted, "Hilbert transformed sine");
 
+}
+
+TEST(transform, quadro_cast){
+
+    const auto freq = 4.0f;
+    const auto count_of_samples = 4000;
+
+    poddsp::complexSignal Sine = poddsp::complexSin(freq, count_of_samples, 0);
+    poddsp::simpleSignal pSine = poddsp::PlotConstructor::makeProjection(Sine);
+
+    poddsp::complexSignal CSine = poddsp::quadro_cast(pSine);
+    poddsp::PlotConstructor::drawPlot(pSine, "Source sine complex");
+    poddsp::PlotConstructor::drawPlot(Sine, "Source sine projection");
+    poddsp::PlotConstructor::drawPlot(CSine, "Complex source sine");
 }

@@ -36,4 +36,37 @@ namespace poddsp {
 
         return D;
     }
+
+    float complexSequenceCorrelation(const std::vector<std::complex<float>> &original_sequence,
+                                     const std::vector<std::complex<float>> &incoming_sequence) noexcept {
+
+
+        int sequence_size = (int)original_sequence.size();
+        std::complex<float> correlation_result;
+        std::vector<std::complex<float>> conjugated_incoming_sequence;
+
+        conjugated_incoming_sequence.reserve(incoming_sequence.size());
+        for (std::complex<float> e : incoming_sequence) {
+            conjugated_incoming_sequence.emplace_back(conj(e));
+        }
+
+        std::vector<std::complex<float>> centralized_sequence_original =
+                sequenceCentralizer(original_sequence, sequence_size);
+        std::vector<std::complex<float>> centralized_sequence_incoming =
+                sequenceCentralizer(conjugated_incoming_sequence, sequence_size);
+
+        std::complex<float> dispersion_original =
+                dispersion(centralized_sequence_original, sequence_size);
+        std::complex<float> dispersion_incoming =
+                dispersion(centralized_sequence_incoming, sequence_size);
+
+        for (int i = 0; i < sequence_size; i++) {
+            correlation_result +=
+                    centralized_sequence_incoming[i] * centralized_sequence_original[i];
+        }
+        correlation_result *= (1.0f / static_cast<float>(sequence_size));
+        correlation_result /= pow(dispersion_incoming * dispersion_original, 0.5);
+
+        return std::norm(correlation_result);
+    }
 }

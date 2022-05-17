@@ -38,21 +38,7 @@ namespace poddsp {
         return res;
     }
 
-    template<typename T>
-    std::complex<T> complexSgn(std::complex<T> sample){
-
-        auto arg = complexMagMeasurer(sample);
-        if(arg == 0)
-            return sample;
-        return sample/fabsf(arg);
-    }
-
-    template<typename T>
-    T simpleSgn(T n) {
-        return (((n<0)*-1) | (n>0));
-    }
-
-    std::vector<float> forwardFFT(const std::vector<float> &an_seq) {
+    std::vector<float> forwardFFT(const std::vector<float> &an_seq) noexcept {
 
         auto length = static_cast<int>(an_seq.size());
         std::vector<std::complex<float>> intrm_arr;
@@ -78,7 +64,7 @@ namespace poddsp {
         return res_arr;
     }
 
-    std::vector<float> backwardFFT(const std::vector<float> &an_seq) {
+    std::vector<float> backwardFFT(const std::vector<float> &an_seq) noexcept {
 
         auto length = static_cast<int>(an_seq.size());
         std::vector<std::complex<float>> intrm_arr;
@@ -105,26 +91,57 @@ namespace poddsp {
     }
 
 /// На вход принимает массив с сигналом и сдвигает его на 90 градусов
-    std::vector<float> transformHilbert(const std::vector<float>& signal){
+    std::vector<float> transformHilbert(const std::vector<float>& signal) noexcept{
 
         int count_of_samples = static_cast<int>(signal.size());
-        std::vector<std::complex<float>> intrm_arr; intrm_arr.reserve(count_of_samples);
-        std::vector<float> spectrum = forwardFFT(signal);
+        std::vector<std::complex<float>> buff;
+        buff.resize(count_of_samples);
+
+        auto forward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(buff.data()),
+                                              (fftwf_complex *)(buff.data()), FFTW_FORWARD, FFTW_ESTIMATE);
+
+        auto backward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(buff.data()),
+                                               (fftwf_complex *)(buff.data()), FFTW_BACKWARD, FFTW_ESTIMATE);
+
+
+        for(int i = 0; i < count_of_samples; i++){
+            buff[i] = std::complex<float>{signal[i] , 0};
+        }
+
+        fftwf_execute(forward_FFT);
 
         {
             auto Im_one = std::complex<float>{0, 1};
 
             for (int i = -count_of_samples/2; i < count_of_samples/2; i++) {
-                intrm_arr.emplace_back(-Im_one * simpleSgn(static_cast<float>(i))* spectrum[i + count_of_samples/2]);
-                intrm_arr.back() /= static_cast<float>(count_of_samples);
+                buff[i + count_of_samples/2] = Im_one * simpleSgn(static_cast<float>(i)) * buff[i + count_of_samples/2];
+                buff[i + count_of_samples/2] /= static_cast<float>(count_of_samples);
             }
         }
-        simpleSignal res_arr; res_arr.reserve(count_of_samples);
-/// нет записи
-        for(auto e : intrm_arr){
+
+        fftwf_execute(backward_FFT);
+
+        fftwf_destroy_plan(forward_FFT);
+        fftwf_destroy_plan(backward_FFT);
+
+        fftwf_cleanup();
+
+        poddsp::simpleSignal res_arr; res_arr.reserve(count_of_samples);
+        for(auto e : buff){
             res_arr.emplace_back(e.real());
         }
 
+        return res_arr;
+    }
+
+    std::vector<std::complex<float>> quadro_cast(const std::vector<float> & signal) noexcept{
+
+        std::vector<float> quadro_part = transformHilbert(signal);
+        std::vector<std::complex<float>> res_arr; res_arr.reserve(signal.size());
+
+        for(int i = 0; i < signal.size(); i++){
+            res_arr.emplace_back(std::complex<float> {signal[i], quadro_part[i]});
+        }
         return res_arr;
     }
 }
