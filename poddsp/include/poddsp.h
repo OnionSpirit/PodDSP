@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include <unistd.h>
 #include <complex>
 #include <cmath>
 #include <iostream>

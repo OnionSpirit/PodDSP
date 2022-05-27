@@ -62,4 +62,6 @@ namespace poddsp {
     std::vector<float> transformHilbert(const std::vector<float>&) noexcept;
 
     std::vector<std::complex<float>> quadro_cast(const std::vector<float> &) noexcept;
+
+    std::vector<float> AWGN_generator(size_t len) noexcept;
 }

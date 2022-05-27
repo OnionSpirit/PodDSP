@@ -30,7 +30,7 @@ namespace poddsp {
 
     std::vector<float> signalShelf(const std::vector<float> & signal,
                                    const float & shelf)
-                                   noexcept {
+    noexcept {
         std::vector<float> res_arr;
 
         res_arr.reserve(signal.size());
@@ -61,9 +61,9 @@ namespace poddsp {
     }
 
     simpleSignal MeanderGen(const float& freq,
-                             const int & count_of_samples,
-                             const float & zero_phase,
-                             bool is_simple){
+                            const int & count_of_samples,
+                            const float & zero_phase,
+                            bool is_simple){
 
         if ((float) count_of_samples <= 2 * freq) {
             throw std::invalid_argument(

@@ -4,9 +4,9 @@
 namespace poddsp {
 
     void PlotConstructor::drawComplexPlot(const std::vector<std::complex<float>> &data,
-                                     const std::string &title,
-                                     int step)
-                                     noexcept {
+                                          const std::string &title,
+                                          int step)
+    noexcept {
         std::ofstream datafile;
         datafile.open("plotData.dat");
 

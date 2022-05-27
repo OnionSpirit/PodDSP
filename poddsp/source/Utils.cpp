@@ -45,7 +45,7 @@ namespace poddsp {
         intrm_arr.resize(length);
 
         auto forward_FFT =  fftwf_plan_dft_1d(length, (fftwf_complex *)(intrm_arr.data()),
-                                             (fftwf_complex *)(intrm_arr.data()), FFTW_FORWARD, FFTW_ESTIMATE);
+                                              (fftwf_complex *)(intrm_arr.data()), FFTW_FORWARD, FFTW_ESTIMATE);
 
         for(int i = 0; i < length; i++){
             intrm_arr[i] = -std::complex<float>(an_seq[i], 0);
@@ -71,7 +71,7 @@ namespace poddsp {
         intrm_arr.resize(length);
 
         auto backward_FFT =  fftwf_plan_dft_1d(length, (fftwf_complex *)(intrm_arr.data()),
-                                              (fftwf_complex *)(intrm_arr.data()), FFTW_BACKWARD, FFTW_ESTIMATE);
+                                               (fftwf_complex *)(intrm_arr.data()), FFTW_BACKWARD, FFTW_ESTIMATE);
 
         for(int i = 0; i < length; i++){
             intrm_arr[i] = std::complex<float>(an_seq[i], 0);
@@ -144,4 +144,49 @@ namespace poddsp {
         }
         return res_arr;
     }
+
+
+    std::vector<float> AWGN_generator(size_t len) noexcept {
+
+        double temp1;
+        double temp2;
+        double result;
+        int p;
+
+        std::vector<float> res_arr;
+        res_arr.reserve(len);
+
+
+        srand(time(0));
+        for(int i = 0; i < len; i++){
+            p = 1;
+
+            while (p > 0) {
+                temp2 = (rand() / ((double) RAND_MAX));
+
+                if (temp2 == 0) p = 1;
+                else p = -1;
+
+            }
+
+            temp1 = cos((2.0 * (double) M_PI) * rand() / ((double) RAND_MAX));
+            result = sqrt(-2.0 * log(temp2)) * temp1;
+
+            res_arr.emplace_back(result);
+            usleep(100);
+        }
+
+        {/// Нормировка
+            float max_val = 0.0f;
+            for (auto e: res_arr) {
+                if (e > max_val) max_val = e;
+            }
+            for (auto &e: res_arr) {
+                e /= max_val;
+            }
+        }
+
+        return res_arr;
+    }
+
 }

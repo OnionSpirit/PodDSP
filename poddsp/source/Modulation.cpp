@@ -71,7 +71,7 @@ namespace poddsp {
 
         std::vector<float> carrier = PlotConstructor::makeProjection(
                 complexSin(static_cast<float>(periods_counter),
-                    periods_counter*samples_per_symbol, -90));
+                           periods_counter*samples_per_symbol, -90));
 
         auto modulation_step = static_cast<float>(carrier.size()) / static_cast<float>(periods_counter);
 

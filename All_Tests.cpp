@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <ctime>
+
 #include <poddsp.h>
 
 #define RANDOM_NUMBER 1 + rand()%10
@@ -337,4 +339,43 @@ TEST(transform, quadro_cast){
     poddsp::PlotConstructor::drawPlot(pSine, "Source sine complex");
     poddsp::PlotConstructor::drawPlot(Sine, "Source sine projection");
     poddsp::PlotConstructor::drawPlot(CSine, "Complex source sine");
+}
+
+TEST(transform, fftw_speed_test){
+    constexpr auto count_of_samples = 8192;
+    constexpr auto freq = 16.0f;
+    constexpr auto count_of_processing = 1000000;
+
+    poddsp::complexSignal FFT_analysis_result;
+    FFT_analysis_result.reserve(count_of_samples);
+
+    auto forward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(FFT_analysis_result.data()),
+                                          (fftwf_complex *)(FFT_analysis_result.data()), FFTW_FORWARD, FFTW_MEASURE);
+
+    for(auto e : poddsp::MeanderGen(freq, count_of_samples, 0, true)){
+        FFT_analysis_result.emplace_back(std::complex<float>{e, 0});
+    }
+
+//    auto gen_error = 0.0f;
+//    auto interm_clock = 0.0f;
+    auto start_time = clock();
+    for(int i = count_of_processing; i != 0; i--){
+        fftwf_execute(forward_FFT);
+    }
+
+    auto total_time = clock() - start_time;
+
+    fftwf_destroy_plan(forward_FFT);
+    fftwf_cleanup();
+
+    std::cout << "Total time in seconds: " << static_cast<float>(total_time) / 1000000.0f << std::endl;
+}
+
+TEST(generators, AWGN_generator){
+
+    poddsp::simpleSignal noise = poddsp::AWGN_generator(1000);
+
+    poddsp::complexSignal  complex_noise = poddsp::quadro_cast(poddsp::AWGN_generator(1000));
+
+    poddsp::PlotConstructor::drawPlot(complex_noise, "АГБШ");
 }
