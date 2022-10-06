@@ -9,9 +9,9 @@ namespace poddsp {
     /// 2) Массив для выходных данных,
     /// 3) Количество семплов в новом массиве.
     void complexSignalResampler(const std::vector<std::complex<float>> &input_arr,
-                                        std::vector<std::complex<float>> &output_arr,
-                                        const int &new_samples_count)
-                                        noexcept {
+                                std::vector<std::complex<float>> &output_arr,
+                                const int &new_samples_count)
+    noexcept {
         unsigned int h_len = 1;
         float r = static_cast<float>(new_samples_count) / static_cast<float>(input_arr.size());
         float bw = 0.0001f;

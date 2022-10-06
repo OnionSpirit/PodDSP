@@ -30,13 +30,63 @@ namespace poddsp {
 
     std::vector<float> signalShelf(const std::vector<float> & signal,
                                    const float & shelf)
-                                   noexcept {
+    noexcept {
         std::vector<float> res_arr;
 
         res_arr.reserve(signal.size());
         for(auto e : signal){
             res_arr.emplace_back(e + shelf);
         }
+        return res_arr;
+    }
+
+    s_sig_t impulseGen(const int& width, const int& delay, const int& frame){
+
+        if((delay + width) > frame)
+            throw std::invalid_argument(ERROR_GEN "Impulse width and delay, bigger than frame");
+        s_sig_t impulse;
+
+        impulse.reserve(frame);
+        for(int i = 0; i < delay; i++){
+            impulse.emplace_back(0.0f);
+        }
+        for(int i = 0; i < width; i++){
+            impulse.emplace_back(1.0f);
+        }
+        for(int i = delay+width; i < frame; i++){
+            impulse.emplace_back(0.0f);
+        }
+
+        return impulse;
+    }
+
+    s_sig_t MeanderGen(const float& freq,
+                       const int & count_of_samples,
+                       const float & zero_phase,
+                       bool is_simple){
+
+        if ((float) count_of_samples <= 2 * freq) {
+            throw std::invalid_argument(
+                    ERROR_GEN"Kotelnikov theorem requires sampling freq more than doubled signal freq.");
+        }
+
+        s_sig_t res_arr;
+        res_arr.reserve(count_of_samples);
+
+        float samples_per_period = static_cast<float>(count_of_samples) / freq;
+
+        s_sig_t example = impulseGen(static_cast<int>(samples_per_period) / 2, 0,
+                                          static_cast<int>(samples_per_period) / 2);
+
+        float arg = 1;
+        for (int i = 0; i < 2 * static_cast<int>(freq); i++) {
+            for (auto e: example) {
+                res_arr.emplace_back(arg*e);
+            }
+            arg *= -1.0f;
+        }
+
+
         return res_arr;
     }
 }

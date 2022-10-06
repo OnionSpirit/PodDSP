@@ -4,7 +4,7 @@ namespace poddsp {
 
     std::vector<std::complex<float>> complexCFOCompensator(const std::vector<std::complex<float>> &,
                                                            const float &)
-                                                           noexcept;
+    noexcept;
 
     std::vector<float> differentiation(const std::vector<float> &);
 
@@ -22,6 +22,5 @@ namespace poddsp {
 /// Количество проходов ФАПЧ не следует выбирать слишком большим при использовании угловых модуляций.
 /// При использовании на АМ сигнале глубина его модуляции не должна превышать 90%.
     std::vector<std::complex<float>> complexPLL(const std::vector<std::complex<float>> &,
-                                                int = 1,
                                                 int = 1);
 }

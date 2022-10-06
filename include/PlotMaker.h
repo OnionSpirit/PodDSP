@@ -8,7 +8,7 @@ namespace poddsp {
         static void drawComplexPlot(const std::vector<std::complex<float>> &,
                                     const std::string & = "NoTitle",
                                     int = 1)
-                                    noexcept;
+        noexcept;
 
     public:
         enum type_of_projection {
@@ -29,7 +29,8 @@ namespace poddsp {
             if (typeid(T) == typeid(std::complex<float>) ||
                 typeid(T) == typeid(std::complex<double>) ||
                 typeid(T) == typeid(std::complex<int>) ||
-                typeid(T) == typeid(std::complex<char>)) {
+                typeid(T) == typeid(std::complex<char>))
+            {
                 std::vector<std::complex<float>> complex_data;
                 for (auto e : data) {
                     complex_data.emplace_back(e);
@@ -37,6 +38,7 @@ namespace poddsp {
                 PlotConstructor::drawComplexPlot(complex_data, title, step);
                 return;
             }
+
             datafile.open("plotData.dat");
             for (int i = 0; auto e: data) {
                 datafile << i << "\t" << e << std::endl;
