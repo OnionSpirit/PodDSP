@@ -40,11 +40,11 @@ namespace poddsp {
         return res_arr;
     }
 
-    simpleSignal impulseGen(const int& width, const int& delay, const int& frame){
+    s_sig_t impulseGen(const int& width, const int& delay, const int& frame){
 
         if((delay + width) > frame)
             throw std::invalid_argument(ERROR_GEN "Impulse width and delay, bigger than frame");
-        simpleSignal impulse;
+        s_sig_t impulse;
 
         impulse.reserve(frame);
         for(int i = 0; i < delay; i++){
@@ -60,22 +60,22 @@ namespace poddsp {
         return impulse;
     }
 
-    simpleSignal MeanderGen(const float& freq,
-                            const int & count_of_samples,
-                            const float & zero_phase,
-                            bool is_simple){
+    s_sig_t MeanderGen(const float& freq,
+                       const int & count_of_samples,
+                       const float & zero_phase,
+                       bool is_simple){
 
         if ((float) count_of_samples <= 2 * freq) {
             throw std::invalid_argument(
                     ERROR_GEN"Kotelnikov theorem requires sampling freq more than doubled signal freq.");
         }
 
-        simpleSignal res_arr;
+        s_sig_t res_arr;
         res_arr.reserve(count_of_samples);
 
         float samples_per_period = static_cast<float>(count_of_samples) / freq;
 
-        simpleSignal example = impulseGen(static_cast<int>(samples_per_period) / 2, 0,
+        s_sig_t example = impulseGen(static_cast<int>(samples_per_period) / 2, 0,
                                           static_cast<int>(samples_per_period) / 2);
 
         float arg = 1;

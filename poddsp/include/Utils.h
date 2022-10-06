@@ -2,9 +2,9 @@
 
 namespace poddsp {
 
-    using complexSignal = std::vector<std::complex<float>>;
-    using simpleSignal = std::vector<float>;
-    using complexSample = std::complex<float>;
+    typedef std::vector<std::complex<float>> c_sig_t;
+    typedef std::vector<float> s_sig_t;
+    typedef std::complex<float> complexSample_t;
 
 
 //    template<typename T>

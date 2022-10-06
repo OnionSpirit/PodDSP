@@ -51,7 +51,7 @@ namespace poddsp {
                 break;
             }
             curr_diff = ((incoming_dependence[i + 1] - incoming_dependence[i]));
-            if (res_dependence.size() > 1 && fabsf(curr_diff) > res_dependence.back()*100) curr_diff = res_dependence.back();
+//            if (res_dependence.size() > 1 && fabsf(curr_diff) > res_dependence.back()*100) curr_diff = res_dependence.back();
             res_dependence.emplace_back(curr_diff);
         }
         return res_dependence;

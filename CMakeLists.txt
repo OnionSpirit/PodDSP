@@ -3,6 +3,8 @@ project(PodDSP_test)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(GTEST_CATCH_EXCEPTIONS 0)
+set(GTEST_BREAK_ON_FAILURE 1)
 
 include(FetchContent)
 

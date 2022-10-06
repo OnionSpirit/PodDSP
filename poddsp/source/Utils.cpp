@@ -126,7 +126,7 @@ namespace poddsp {
 
         fftwf_cleanup();
 
-        poddsp::simpleSignal res_arr; res_arr.reserve(count_of_samples);
+        poddsp::s_sig_t res_arr; res_arr.reserve(count_of_samples);
         for(auto e : buff){
             res_arr.emplace_back(e.real());
         }

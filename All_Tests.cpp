@@ -44,12 +44,12 @@ TEST(complex_functions, resampling_complex_signal){
 
 /// Draw 3M plots
 
-    poddsp::PlotConstructor::drawPlot(original_long_seq,
-                                      (std::to_string(count_of_samples) + " samples"));
-    poddsp::PlotConstructor::drawPlot(original_short_seq,
-                                      (std::to_string(new_count_of_samples) + " samples"));
-    poddsp::PlotConstructor::drawPlot(resampled_short_seq,
-                                      (std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
+//    poddsp::PlotConstructor::drawPlot(original_long_seq,
+//                                      (std::to_string(count_of_samples) + " samples"));
+//    poddsp::PlotConstructor::drawPlot(original_short_seq,
+//                                      (std::to_string(new_count_of_samples) + " samples"));
+//    poddsp::PlotConstructor::drawPlot(resampled_short_seq,
+//                                      (std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 
 /// Draw 2M Real plots
@@ -68,23 +68,23 @@ TEST(complex_functions, resampling_complex_signal){
 
 /// Draw 2M Imaginary plots
 
-    std::vector<float> original_long_seq_Im =
-            poddsp::PlotConstructor::makeProjection(original_long_seq,
-                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-    poddsp::PlotConstructor::drawPlot(original_long_seq_Im,
-                                      ("IM " + std::to_string(count_of_samples) + " samples"));
-
-    std::vector<float> original_short_seq_Im =
-            poddsp::PlotConstructor::makeProjection(original_short_seq,
-                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-    poddsp::PlotConstructor::drawPlot(original_short_seq_Im,
-                                      ("IM " + std::to_string(new_count_of_samples) + " samples"));
-
-    std::vector<float> resampled_short_seq_Im =
-            poddsp::PlotConstructor::makeProjection(resampled_short_seq,
-                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-    poddsp::PlotConstructor::drawPlot(resampled_short_seq_Im,
-                                      ("IM " + std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
+//    std::vector<float> original_long_seq_Im =
+//            poddsp::PlotConstructor::makeProjection(original_long_seq,
+//                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+//    poddsp::PlotConstructor::drawPlot(original_long_seq_Im,
+//                                      ("IM " + std::to_string(count_of_samples) + " samples"));
+//
+//    std::vector<float> original_short_seq_Im =
+//            poddsp::PlotConstructor::makeProjection(original_short_seq,
+//                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+//    poddsp::PlotConstructor::drawPlot(original_short_seq_Im,
+//                                      ("IM " + std::to_string(new_count_of_samples) + " samples"));
+//
+//    std::vector<float> resampled_short_seq_Im =
+//            poddsp::PlotConstructor::makeProjection(resampled_short_seq,
+//                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+//    poddsp::PlotConstructor::drawPlot(resampled_short_seq_Im,
+//                                      ("IM " + std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 }
 
@@ -282,9 +282,13 @@ TEST(complex_functions, BPSK_with_PLL){
 TEST(transform, FFT){
 
     auto count_of_samples = 2000;
-    auto freq = 16.0f;
+    auto freq = 100.0f;
 
-    poddsp::simpleSignal impulse = poddsp::MeanderGen(freq, count_of_samples, 0, true);
+    poddsp::s_sig_t impulse = poddsp::MeanderGen(freq, count_of_samples, 0, true);
+//    poddsp::complexSignal impulse_comp  = poddsp::complexSin(freq, count_of_samples, 0);
+//    poddsp::simpleSignal impulseMod = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq/4, count_of_samples, 0));
+//    impulse_comp = poddsp::complexMagModulator(impulse_comp, impulseMod);
+//    poddsp::simpleSignal impulse = poddsp::PlotConstructor::makeProjection(impulse_comp);
 
 
     std::vector<float> FFT_analysis_result;
@@ -307,7 +311,7 @@ TEST(transform, specturm_plots){
     auto freq = 4.0f;
     auto count_of_samples = 2000;
 
-    poddsp::simpleSignal Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples));
+    poddsp::s_sig_t Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples));
     poddsp::PlotConstructor::drawPlot(Sine, "Исходный сигнал");
 
     auto Rotated_sine = poddsp::forwardFFT(Sine);
@@ -319,8 +323,8 @@ TEST(transform, hilbert_transform){
     const auto freq = 4.0f;
     const auto count_of_samples = 4000;
 
-    poddsp::simpleSignal Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples, 0));
-    poddsp::simpleSignal Hilberted = poddsp::transformHilbert(Sine);
+    poddsp::s_sig_t Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples, 0));
+    poddsp::s_sig_t Hilberted = poddsp::transformHilbert(Sine);
 
     poddsp::PlotConstructor::drawPlot(Sine, "Source sine");
     poddsp::PlotConstructor::drawPlot(Hilberted, "Hilbert transformed sine");
@@ -332,10 +336,10 @@ TEST(transform, quadro_cast){
     const auto freq = 4.0f;
     const auto count_of_samples = 4000;
 
-    poddsp::complexSignal Sine = poddsp::complexSin(freq, count_of_samples, 0);
-    poddsp::simpleSignal pSine = poddsp::PlotConstructor::makeProjection(Sine);
+    poddsp::c_sig_t Sine = poddsp::complexSin(freq, count_of_samples, 0);
+    poddsp::s_sig_t pSine = poddsp::PlotConstructor::makeProjection(Sine);
 
-    poddsp::complexSignal CSine = poddsp::quadro_cast(pSine);
+    poddsp::c_sig_t CSine = poddsp::quadro_cast(pSine);
     poddsp::PlotConstructor::drawPlot(pSine, "Source sine complex");
     poddsp::PlotConstructor::drawPlot(Sine, "Source sine projection");
     poddsp::PlotConstructor::drawPlot(CSine, "Complex source sine");
@@ -346,7 +350,7 @@ TEST(transform, fftw_speed_test){
     constexpr auto freq = 16.0f;
     constexpr auto count_of_processing = 1000000;
 
-    poddsp::complexSignal FFT_analysis_result;
+    poddsp::c_sig_t FFT_analysis_result;
     FFT_analysis_result.reserve(count_of_samples);
 
     auto forward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(FFT_analysis_result.data()),
@@ -373,9 +377,72 @@ TEST(transform, fftw_speed_test){
 
 TEST(generators, AWGN_generator){
 
-    poddsp::simpleSignal noise = poddsp::AWGN_generator(1000);
+    poddsp::s_sig_t noise = poddsp::AWGN_generator(1000);
 
-    poddsp::complexSignal  complex_noise = poddsp::quadro_cast(poddsp::AWGN_generator(1000));
+    poddsp::c_sig_t  complex_noise = poddsp::quadro_cast(poddsp::AWGN_generator(1000));
 
     poddsp::PlotConstructor::drawPlot(complex_noise, "АГБШ");
+}
+
+TEST(complex_functions, CFO_search){
+    using namespace poddsp;
+    using namespace std;
+
+    FILE *file;
+
+    file=fopen("../2685_f.iq", "rb");
+    if(fseek(file, 0, SEEK_END) < 0){
+        perror("LOH");
+    }
+    auto sz = ftell(file)/8;
+    c_sig_t arr, parr;
+    arr.reserve(sz);
+    parr.reserve(sz/10000);
+    rewind(file);
+    float ar[2];
+
+
+    for(int i = 0; i < sz; i++) {
+        fread(ar, 4, 2, file);
+        arr.emplace_back(std::complex<float>(ar[0], ar[1]));
+    }
+    fclose(file);
+
+    for(int i = 0; i < sz/10000; i++){
+        parr.emplace_back(arr.at(i));
+    }
+
+
+
+//        PlotConstructor::drawPlot(PlotConstructor::makeProjection(parr, PlotConstructor::real_projection));
+
+    s_sig_t phase_dependence;
+    s_sig_t diff_phase_dependence;
+    s_sig_t second_diff_phase_dependence;
+    c_sig_t res_arr;
+
+    phase_dependence = complexSignalPhaseDependence(arr);
+
+//        PlotConstructor::drawPlot(phase_dependence, "фаза в сигнале");
+
+    diff_phase_dependence = differentiation(phase_dependence);
+//        PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
+
+    second_diff_phase_dependence = differentiation(diff_phase_dependence);
+//        PlotConstructor::drawPlot(second_diff_phase_dependence, "рост частоты в сигнале");
+
+    std::cout << signalMedValue(second_diff_phase_dependence) << std::endl;
+}
+
+TEST(complex_functions, do_DC_offset_count) {
+
+    constexpr auto count_of_samples = 4096;
+    constexpr auto freq = 8.0f;
+
+    constexpr auto dc_offset = 2.0f;
+
+    poddsp::s_sig_t sig = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples));
+    sig = poddsp::signalShelf(sig, dc_offset);
+
+    ASSERT_EQ(poddsp::signalMedValue(sig), dc_offset);
 }

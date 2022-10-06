@@ -24,12 +24,12 @@ namespace poddsp {
 /// 1) Количество периодов во фрейме (частота),
 /// 2) Общее количество семплов,
 /// 3) Начальная фаза сигнала
-    complexSignal MeanderGen(const float &,
-                             const int &,
-                             const float & = 0);
+    c_sig_t MeanderGen(const float &,
+                       const int &,
+                       const float & = 0);
 
-    simpleSignal MeanderGen(const float &,
-                            const int &,
-                            const float & = 0,
-                            bool = false);
+    s_sig_t MeanderGen(const float &,
+                       const int &,
+                       const float & = 0,
+                       bool = false);
 }
