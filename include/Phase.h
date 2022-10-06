@@ -18,5 +18,7 @@ namespace poddsp {
 
 /// Вычисление фазы комплексного вектора
     float complexVectorPhase(const std::complex<float> &) noexcept;
+/// Строит линейный график фазы
+    std::vector<float> phaseDependenceLining(const std::vector<float>& phase_graph) noexcept;
 
 }
