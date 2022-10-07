@@ -189,4 +189,25 @@ namespace poddsp {
         return res_arr;
     }
 
+    namespace projection {
+
+        std::vector<float> takeProjection(const std::vector<std::complex<float>> &arr,
+                                          const type_of_projection &type) {
+            std::vector<float> res_arr;
+            switch (type) {
+                case 0:
+                    for (auto e: arr) {
+                        res_arr.emplace_back(e.real());
+                    }
+                    return res_arr;
+                case 1:
+                    for (auto e: arr) {
+                        res_arr.emplace_back(e.imag());
+                    }
+                    return res_arr;
+                default:
+                    throw std::invalid_argument(ERROR_PLOT"Incorrect projection type");
+            }
+        }
+    }
 }

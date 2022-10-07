@@ -22,13 +22,19 @@ namespace poddsp {
     float complexPhaseCalculating(const std::vector<std::complex<float>> &samples_S,
                                   const std::vector<std::complex<float>> &samples_X)
     noexcept {
-        std::complex<float> J{0, 1};
         std::complex<float> phase = 0.0f;
-        float deg_phase;
+        float deg_phase =0.0f;
 
-        phase = J *
-                log(complexIntermediatePhaseCalculating(samples_S) / complexIntermediatePhaseCalculating(samples_X));
-        deg_phase = static_cast<float>(phase.real() * 180 / M_PI);
+        try {
+            phase = J *
+                    log(complexIntermediatePhaseCalculating(samples_S) /
+                        complexIntermediatePhaseCalculating(samples_X));
+            deg_phase = static_cast<float>(phase.real() * 180 / M_PI);
+        }
+
+        catch (std::exception& e) {
+            e.what();
+        }
 
         return deg_phase;
     }

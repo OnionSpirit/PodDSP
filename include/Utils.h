@@ -5,6 +5,7 @@ namespace poddsp {
     typedef std::vector<std::complex<float>> c_sig_t;
     typedef std::vector<float> s_sig_t;
     typedef std::complex<float> complexSample_t;
+    const std::complex<float> J {0,1};
 
 
 //    template<typename T>
@@ -64,4 +65,18 @@ namespace poddsp {
     std::vector<std::complex<float>> quadro_cast(const std::vector<float> &) noexcept;
 
     std::vector<float> AWGN_generator(size_t len) noexcept;
+
+    namespace projection {
+
+        enum type_of_projection {
+            real_projection = 0,
+            imaginary_projection = 1
+        };
+
+        /// Создание проекции трёхмерного графика на одну из плоскостей. Праметры:
+        /// 1) Массив комплексных данных,
+        /// 2) Тип проекции согласно PodDSP::PlotConstructor::type_of_projection, по умолчанию real_projection.
+        std::vector<float> takeProjection(const std::vector<std::complex<float>> &,
+                                                 const type_of_projection & = type_of_projection::real_projection);
+    }
 }

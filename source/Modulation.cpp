@@ -69,7 +69,7 @@ namespace poddsp {
 
         int periods_counter = static_cast<int>(info_seq.size());
 
-        std::vector<float> carrier = PlotConstructor::makeProjection(
+        std::vector<float> carrier = projection::takeProjection(
                 complexSin(static_cast<float>(periods_counter),
                            periods_counter*samples_per_symbol, -90));
 

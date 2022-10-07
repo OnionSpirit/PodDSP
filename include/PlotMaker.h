@@ -52,11 +52,5 @@ namespace poddsp {
 
             if (remove("plotData.dat")) throw std::invalid_argument(ERROR_PLOT"Temporary file removing failure");
         }
-
-/// Создание проекции трёхмерного графика на одну из плоскостей. Праметры:
-/// 1) Массив комплексных данных,
-/// 2) Тип проекции согласно PodDSP::PlotConstructor::type_of_projection, по умолчанию real_projection.
-        static std::vector<float> makeProjection(const std::vector<std::complex<float>> &,
-                                                 const type_of_projection & = type_of_projection::real_projection);
     };
 }
