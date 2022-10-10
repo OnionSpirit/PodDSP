@@ -42,6 +42,10 @@ namespace poddsp {
 
     float signalMedValue(const std::vector<float> &) noexcept;
 
+    s_sig_t signalNormalizing(const s_sig_t &) noexcept;
+
+    c_sig_t signalNormalizing(const c_sig_t &) noexcept;
+
     std::vector<float> forwardFFT(const std::vector<float> &) noexcept;
 
     std::vector<float> backwardFFT(const std::vector<float> &) noexcept;

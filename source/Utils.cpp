@@ -38,6 +38,25 @@ namespace poddsp {
         return res;
     }
 
+    s_sig_t signalNormalizing(const s_sig_t & s_sig) noexcept {
+        auto max = signalMaxValue(s_sig);
+        s_sig_t ret;
+        for(auto e : s_sig) {
+            ret.emplace_back(e/max);
+        }
+        return ret;
+    }
+
+    c_sig_t signalNormalizing(const c_sig_t & c_sig) noexcept {
+        auto i_max = signalMaxValue(projection::takeProjection(c_sig));
+        auto q_max = signalMaxValue(projection::takeProjection(c_sig, projection::imaginary_projection));
+        c_sig_t ret;
+        for(auto e : c_sig) {
+            ret.emplace_back(std::complex<float>{e.real() / i_max, e.imag() / q_max});
+        }
+        return ret;
+    }
+
     std::vector<float> forwardFFT(const std::vector<float> &an_seq) noexcept {
 
         auto length = static_cast<int>(an_seq.size());
