@@ -11,10 +11,6 @@ namespace poddsp {
         noexcept;
 
     public:
-        enum type_of_projection {
-            real_projection = 0,
-            imaginary_projection = 1
-        };
 
 /// Рисование графика (Для трёхмерного графика, входной массив должен быть комплексным).
 /// Параметры:
