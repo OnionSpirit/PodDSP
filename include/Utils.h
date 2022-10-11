@@ -4,6 +4,8 @@ namespace poddsp {
 
     typedef std::vector<std::complex<float>> c_sig_t;
     typedef std::vector<float> s_sig_t;
+    typedef std::complex<float> c_smp;
+    typedef float s_smp;
     typedef std::complex<float> complexSample_t;
     const std::complex<float> J {0,1};
 
