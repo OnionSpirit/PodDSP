@@ -21,6 +21,5 @@ namespace poddsp {
 /// Ширина окна дифференцирования так же должна быть кратна количеству семплов всего обрабатываемого сигнала.
 /// Количество проходов ФАПЧ не следует выбирать слишком большим при использовании угловых модуляций.
 /// При использовании на АМ сигнале глубина его модуляции не должна превышать 90%.
-    std::vector<std::complex<float>> complexPLL(const float, const std::vector<std::complex<float>> &,
-                                                int = 1);
+    std::vector<std::complex<float>> complexPLL(const std::vector<std::complex<float>> &, float =0) noexcept;
 }

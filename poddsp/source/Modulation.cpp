@@ -34,7 +34,7 @@ namespace poddsp {
 
         float mag;
         float current_phase;
-        for(int i = 0; i < carrier_buffer.size(); i++){
+        for(int i = 0; i < carrier_buffer.size(); i++) {
             mag = complexMagMeasurer(carrier_buffer[i]);
             mag *= complexMagMeasurer(information_signal[i]);
             current_phase = complexVectorPhase(carrier_buffer[i]);
@@ -43,11 +43,6 @@ namespace poddsp {
                     mag * static_cast<float>(cos(static_cast<double>(current_phase))),
                     mag * static_cast<float>(sin(static_cast<double>(current_phase)))});
         }
-
-        for(auto e : res_arr){
-            intrm_arr.emplace_back(e.real());
-        }
-        res_arr = quadro_cast(intrm_arr);
 
         return res_arr;
     }
@@ -69,7 +64,7 @@ namespace poddsp {
 
         int periods_counter = static_cast<int>(info_seq.size());
 
-        std::vector<float> carrier = PlotConstructor::makeProjection(
+        std::vector<float> carrier = projection::takeProjection(
                 complexSin(static_cast<float>(periods_counter),
                            periods_counter*samples_per_symbol, -90));
 

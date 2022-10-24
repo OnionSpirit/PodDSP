@@ -4,6 +4,7 @@
 #include <poddsp.h>
 
 #define RANDOM_NUMBER 1 + rand()%10
+#define DO_PLOTS true
 
 
 TEST(complex_functions, complex_correlation_calculation){
@@ -26,7 +27,7 @@ TEST(complex_functions, generating_complex_signal){
 
     auto freq = 10.0f;
     auto count_of_samples = 10000;
-    poddsp::PlotConstructor::drawPlot(poddsp::complexSin(freq, count_of_samples), "Sine " + std::to_string(freq));
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(poddsp::complexSin(freq, count_of_samples), "Sine " + std::to_string(freq));
 }
 
 TEST(complex_functions, resampling_complex_signal){
@@ -44,46 +45,46 @@ TEST(complex_functions, resampling_complex_signal){
 
 /// Draw 3M plots
 
-//    poddsp::PlotConstructor::drawPlot(original_long_seq,
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_long_seq,
 //                                      (std::to_string(count_of_samples) + " samples"));
-//    poddsp::PlotConstructor::drawPlot(original_short_seq,
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_short_seq,
 //                                      (std::to_string(new_count_of_samples) + " samples"));
-//    poddsp::PlotConstructor::drawPlot(resampled_short_seq,
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(resampled_short_seq,
 //                                      (std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 
 /// Draw 2M Real plots
 
-    std::vector<float> original_long_seq_Re = poddsp::PlotConstructor::makeProjection(original_long_seq);
-    poddsp::PlotConstructor::drawPlot(original_long_seq_Re, ("RE " + std::to_string(count_of_samples) + " samples"));
+    std::vector<float> original_long_seq_Re = poddsp::projection::takeProjection(original_long_seq);
+    if constexpr (DO_PLOTS)if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_long_seq_Re, ("RE " + std::to_string(count_of_samples) + " samples"));
 
-    std::vector<float> original_short_seq_Re = poddsp::PlotConstructor::makeProjection(original_short_seq);
-    poddsp::PlotConstructor::drawPlot(original_short_seq_Re,
+    std::vector<float> original_short_seq_Re = poddsp::projection::takeProjection(original_short_seq);
+    if constexpr (DO_PLOTS)if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_short_seq_Re,
                                       ("RE " + std::to_string(new_count_of_samples) + " samples"));
 
-    std::vector<float> resampled_short_seq_Re = poddsp::PlotConstructor::makeProjection(resampled_short_seq);
-    poddsp::PlotConstructor::drawPlot(resampled_short_seq_Re,
+    std::vector<float> resampled_short_seq_Re = poddsp::projection::takeProjection(resampled_short_seq);
+    if constexpr (DO_PLOTS)if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(resampled_short_seq_Re,
                                       ("RE " + std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 
 /// Draw 2M Imaginary plots
 
 //    std::vector<float> original_long_seq_Im =
-//            poddsp::PlotConstructor::makeProjection(original_long_seq,
-//                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-//    poddsp::PlotConstructor::drawPlot(original_long_seq_Im,
+//            poddsp::projection::takeProjection(original_long_seq,
+//                                                    poddsp::projection::type_of_projection::imaginary_projection);
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_long_seq_Im,
 //                                      ("IM " + std::to_string(count_of_samples) + " samples"));
 //
 //    std::vector<float> original_short_seq_Im =
-//            poddsp::PlotConstructor::makeProjection(original_short_seq,
-//                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-//    poddsp::PlotConstructor::drawPlot(original_short_seq_Im,
+//            poddsp::projection::takeProjection(original_short_seq,
+//                                                    poddsp::projection::type_of_projection::imaginary_projection);
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_short_seq_Im,
 //                                      ("IM " + std::to_string(new_count_of_samples) + " samples"));
 //
 //    std::vector<float> resampled_short_seq_Im =
-//            poddsp::PlotConstructor::makeProjection(resampled_short_seq,
-//                                                    poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-//    poddsp::PlotConstructor::drawPlot(resampled_short_seq_Im,
+//            poddsp::projection::takeProjection(resampled_short_seq,
+//                                                    poddsp::projection::type_of_projection::imaginary_projection);
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(resampled_short_seq_Im,
 //                                      ("IM " + std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 }
@@ -119,10 +120,10 @@ TEST(complex_functions, phase_rotation){
     rotated_with_offset_in_time_sine = poddsp::complexPhaseChanger(sine, phase_common_offset, phase_offset_in_time);
     disoffseted_sine = poddsp::complexPhaseChanger(rotated_with_offset_in_time_sine, -phase_common_offset, -phase_offset_in_time);
 
-    poddsp::PlotConstructor::drawPlot(sine, "OriginalSine");
-    poddsp::PlotConstructor::drawPlot(rotated_sine, "RotatedSine");
-    poddsp::PlotConstructor::drawPlot(rotated_with_offset_in_time_sine, "RotatedwithOffSine");
-    poddsp::PlotConstructor::drawPlot(disoffseted_sine, "DisoffsetedSine");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(sine, "OriginalSine");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(rotated_sine, "RotatedSine");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(rotated_with_offset_in_time_sine, "RotatedwithOffSine");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(disoffseted_sine, "DisoffsetedSine");
 }
 
 TEST(complex_functions, complexPLL) {
@@ -132,25 +133,25 @@ TEST(complex_functions, complexPLL) {
     auto phase_attenuation_per_sample_deg = -0.003f;
 
     std::vector<std::complex<float>> sine = poddsp::complexSin(freq, count_of_samples);
-//    PodDSP::PlotConstructor::drawPlot(sine, "Эталон");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(sine, "Эталон");
 
     std::vector<std::complex<float>> sine_wpo = poddsp::complexPhaseChanger(sine, 0.0f, phase_attenuation_per_sample_deg);
-//    PodDSP::PlotConstructor::drawPlot(sine_wpo, "Эталон с ошибкой");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(sine_wpo, "Эталон с ошибкой");
 
-    std::vector<std::complex<float>> sine_wpo_fixed = poddsp::complexPLL(freq, sine_wpo, 1);
-//    PodDSP::PlotConstructor::drawPlot(sine_wpo_fixed, "Работа ФАПЧ с ошибочным сигналом");
+    std::vector<std::complex<float>> sine_wpo_fixed = poddsp::complexPLL(sine_wpo, freq);
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(sine_wpo_fixed, "Работа ФАПЧ с ошибочным сигналом");
 
-    std::vector<float> sine_real = poddsp::PlotConstructor::makeProjection(sine,
-                                                                           poddsp::PlotConstructor::type_of_projection::real_projection);
-    poddsp::PlotConstructor::drawPlot(sine_real, "Эталон (Проекция действительной части)");
+    std::vector<float> sine_real = poddsp::projection::takeProjection(sine,
+                                                                           poddsp::projection::type_of_projection::real_projection);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(sine_real, "Эталон (Проекция действительной части)");
 
-    std::vector<float> sine_wpo_real = poddsp::PlotConstructor::makeProjection(sine_wpo,
-                                                                               poddsp::PlotConstructor::type_of_projection::real_projection);
-    poddsp::PlotConstructor::drawPlot(sine_wpo_real, "Эталон с ошибкой (Проекция действительной части)");
+    std::vector<float> sine_wpo_real = poddsp::projection::takeProjection(sine_wpo,
+                                                                               poddsp::projection::type_of_projection::real_projection);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(sine_wpo_real, "Эталон с ошибкой (Проекция действительной части)");
 
-    std::vector<float> sine_wpo_fixed_real = poddsp::PlotConstructor::makeProjection(sine_wpo_fixed,
-                                                                                     poddsp::PlotConstructor::type_of_projection::real_projection);
-    poddsp::PlotConstructor::drawPlot(sine_wpo_fixed_real, "Эталон с ошибкой, исправленной ФАПЧ (Проекция действительной части)");
+    std::vector<float> sine_wpo_fixed_real = poddsp::projection::takeProjection(sine_wpo_fixed,
+                                                                                     poddsp::projection::type_of_projection::real_projection);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(sine_wpo_fixed_real, "Эталон с ошибкой, исправленной ФАПЧ (Проекция действительной части)");
 
     std::cout << std::norm(poddsp::complexSequenceCorrelation(sine, sine_wpo_fixed));
 }
@@ -163,34 +164,37 @@ TEST(complex_functions, complexPLL_with_modulated_signal){
     auto phase_attenuation_per_sample_deg = 0.001f;
 
     std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, 0);
-    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier,
-                                                                                      poddsp::PlotConstructor::type_of_projection::real_projection);
-    std::vector<float> mag_modulation = poddsp::PlotConstructor::makeProjection(
-            poddsp::complexSin(info_freq, info_count_of_samples, -90));
-    poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
+    std::vector<float> complex_carrier_real = poddsp::projection::takeProjection(complex_carrier,
+                                                                                      poddsp::projection::type_of_projection::real_projection);
+    std::vector<float> mag_modulation = poddsp::projection::takeProjection(
+            poddsp::complexSin(info_freq, info_count_of_samples));
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
 
     std::vector<std::complex<float>> modulated_carrier = poddsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
-    std::vector<float> modulated_carrier_real = poddsp::PlotConstructor::makeProjection(modulated_carrier, poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-    std::vector<float> modulated_carrier_imag = poddsp::PlotConstructor::makeProjection(modulated_carrier);
+    std::vector<float> modulated_carrier_imag = poddsp::projection::takeProjection(modulated_carrier, poddsp::projection::type_of_projection::imaginary_projection);
+    std::vector<float> modulated_carrier_real = poddsp::projection::takeProjection(modulated_carrier);
 
-    poddsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Проекция действительной части)");
-    poddsp::PlotConstructor::drawPlot(modulated_carrier, "Амплитудно модулированный сигнал");
-    poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
-    poddsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
 
     std::vector<std::complex<float>> modulated_carrier_wpo = poddsp::complexPhaseChanger(modulated_carrier, 0.0f,
                                                                                          phase_attenuation_per_sample_deg);
-    std::vector<float> modulated_carrier_wpo_real = poddsp::PlotConstructor::makeProjection(modulated_carrier_wpo);
-    poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_real, "Амплитудно модулированный сигнал с ошибкой (Проекция действительной части)");
+    std::vector<float> modulated_carrier_wpo_real = poddsp::projection::takeProjection(modulated_carrier_wpo);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_real, "Амплитудно модулированный сигнал с ошибкой (Проекция действительной части)");
 //
-    std::vector<std::complex<float>> modulated_carrier_wpo_fixed = poddsp::complexPLL(freq, modulated_carrier_wpo, 1);
-    std::vector<float> modulated_carrier_wpo_fixed_real = poddsp::PlotConstructor::makeProjection(modulated_carrier_wpo_fixed);
-    poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_real, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция действительной части)");
-//    std::cout << std::norm(poddsp::complexSequenceCorrelation(modulated_carrier, modulated_carrier_wpo_fixed));
+    std::vector<std::complex<float>> modulated_carrier_wpo_fixed = poddsp::complexPLL(modulated_carrier_wpo, freq);
+    std::vector<float> modulated_carrier_wpo_fixed_real = poddsp::projection::takeProjection(modulated_carrier_wpo_fixed);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_real, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция действительной части)");
+    std::vector<float> modulated_carrier_wpo_fixed_imag = poddsp::projection::takeProjection(modulated_carrier_wpo_fixed, poddsp::projection::imaginary_projection);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_imag, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция мнимой части)");
+
 
     std::vector<float> mag_demodulation_result = poddsp::complexMagDemodulator(modulated_carrier_wpo_fixed);
-    poddsp::PlotConstructor::drawPlot(mag_demodulation_result, "Информационный сигнал из демодулятора");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(mag_demodulation_result, "Информационный сигнал из демодулятора");
+
+    std::cout << "Correlation " << std::norm(poddsp::complexSequenceCorrelation(modulated_carrier_wpo_fixed, modulated_carrier)) << std::endl;
 }
+
 
 TEST(complex_functions, BPSK_Modulation){
     auto freq = 10.0f;
@@ -205,14 +209,14 @@ TEST(complex_functions, BPSK_Modulation){
     }
 
     std::vector<std::complex<float>> bpsk_modulated = poddsp::complexBPSKModulator(info_signal, 100);
-    std::vector<float> bpsk_modulated_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated);
-    std::vector<float> bpsk_modulated_imag = poddsp::PlotConstructor::makeProjection(bpsk_modulated,
-                                                                                     poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+    std::vector<float> bpsk_modulated_real = poddsp::projection::takeProjection(bpsk_modulated);
+    std::vector<float> bpsk_modulated_imag = poddsp::projection::takeProjection(bpsk_modulated,
+                                                                                     poddsp::projection::type_of_projection::imaginary_projection);
 
-    poddsp::PlotConstructor::drawPlot(bpsk_modulated, "BPSK модулированный сигнал");
-//    poddsp::PlotConstructor::drawPlot(poddsp::complexSignalPhaseDependence(bpsk_modulated), "Зависимость фазы");
-    poddsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
-    poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_modulated, "BPSK модулированный сигнал");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(poddsp::complexSignalPhaseDependence(bpsk_modulated), "Зависимость фазы");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
 
     for(auto e : info_signal){
         std::cout << e << "\t";
@@ -223,7 +227,7 @@ TEST(complex_functions, BPSK_with_PLL){
 
 /// ToDo Fix BPSK logic fully
 
-    auto freq = 10.0f;
+//    auto freq = 11.0f;
     std::vector<bool> info_signal{false,
                                   true,
                                   false,
@@ -234,47 +238,48 @@ TEST(complex_functions, BPSK_with_PLL){
                                   true,
                                   true,
                                   false};
+    auto freq = info_signal.size();
 //    auto count_of_samples = 1000;
     auto phase_attenuation_per_sample_deg = 0.003f;
 
 //    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, -90);
-//    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier,
-//                                                                                      poddsp::PlotConstructor::type_of_projection::real_projection);
+//    std::vector<float> complex_carrier_real = poddsp::projection::takeProjection(complex_carrier,
+//                                                                                      poddsp::projection::type_of_projection::real_projection);
 //
-//    std::vector<float> complex_carrier_imag = poddsp::PlotConstructor::makeProjection(complex_carrier,
-//                                                                                      poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+//    std::vector<float> complex_carrier_imag = poddsp::projection::takeProjection(complex_carrier,
+//                                                                                      poddsp::projection::type_of_projection::imaginary_projection);
 
     std::vector<std::complex<float>> bpsk_modulated = poddsp::complexBPSKModulator(info_signal);
-    std::vector<float> bpsk_modulated_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated,
-                                                                                     poddsp::PlotConstructor::type_of_projection::real_projection);
+    std::vector<float> bpsk_modulated_real = poddsp::projection::takeProjection(bpsk_modulated,
+                                                                                poddsp::projection::type_of_projection::real_projection);
 
-    std::vector<float> bpsk_modulated_imag = poddsp::PlotConstructor::makeProjection(bpsk_modulated,
-                                                                                     poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+    std::vector<float> bpsk_modulated_imag = poddsp::projection::takeProjection(bpsk_modulated,
+                                                                                poddsp::projection::type_of_projection::imaginary_projection);
 
     std::vector<std::complex<float>> bpsk_modulated_wpo = poddsp::complexPhaseChanger(bpsk_modulated, 0.0f,
                                                                                       phase_attenuation_per_sample_deg);
 
-    std::vector<float> bpsk_modulated_wpo_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated_wpo,
-                                                                                         poddsp::PlotConstructor::type_of_projection::real_projection);
+    std::vector<float> bpsk_modulated_wpo_real = poddsp::projection::takeProjection(bpsk_modulated_wpo,
+                                                                                    poddsp::projection::type_of_projection::real_projection);
 
-    std::vector<std::complex<float>> bpsk_modulated_wpo_fixed = poddsp::complexPLL(freq, bpsk_modulated_wpo);
+    std::vector<std::complex<float>> bpsk_modulated_wpo_fixed = poddsp::complexPLL(bpsk_modulated_wpo, freq);
 
-    std::vector<float> bpsk_modulated_wpo_fixed_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated_wpo_fixed,
-                                                                                               poddsp::PlotConstructor::type_of_projection::real_projection);
+    std::vector<float> bpsk_modulated_wpo_fixed_real = poddsp::projection::takeProjection(bpsk_modulated_wpo_fixed,
+                                                                                          poddsp::projection::type_of_projection::real_projection);
 
 //    std::vector<float> bpsk_phase_function = poddsp::complexSignalPhaseDependence(bpsk_modulated);
 
 
-//    PodDSP::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Действительная часть)");
-//    PodDSP::PlotConstructor::drawPlot(complex_carrier_imag, "Несущий сигнал (Мнимая часть)");
-//    PodDSP::PlotConstructor::drawPlot(PodDSP::complexSignalPhaseDependence(complex_carrier), "Изменение фазы в несущем сигнале");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Действительная часть)");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(complex_carrier_imag, "Несущий сигнал (Мнимая часть)");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(PodDSP::complexSignalPhaseDependence(complex_carrier), "Изменение фазы в несущем сигнале");
 
-    poddsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
-//    poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
-//    poddsp::PlotConstructor::drawPlot(bpsk_phase_function, "Изменение фазы в BPSK сигнале");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_phase_function, "Изменение фазы в BPSK сигнале");
 //
-    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
-    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
 
     std::cout << std::norm(poddsp::complexSequenceCorrelation(bpsk_modulated, bpsk_modulated_wpo_fixed));
 }
@@ -282,26 +287,26 @@ TEST(complex_functions, BPSK_with_PLL){
 TEST(transform, FFT){
 
     auto count_of_samples = 2000;
-    auto freq = 100.0f;
+    auto freq = 10.0f;
 
     poddsp::s_sig_t impulse = poddsp::MeanderGen(freq, count_of_samples, 0, true);
-//    poddsp::complexSignal impulse_comp  = poddsp::complexSin(freq, count_of_samples, 0);
-//    poddsp::simpleSignal impulseMod = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq/4, count_of_samples, 0));
+//    poddsp::c_sig_t impulse_comp  = poddsp::complexSin(freq, count_of_samples, 0);
+//    poddsp::s_sig_t impulseMod = poddsp::projection::takeProjection(poddsp::complexSin(freq/4, count_of_samples, 0));
 //    impulse_comp = poddsp::complexMagModulator(impulse_comp, impulseMod);
-//    poddsp::simpleSignal impulse = poddsp::PlotConstructor::makeProjection(impulse_comp);
+//    poddsp::s_sig_t impulse = poddsp::projection::takeProjection(impulse_comp);
 
 
-    std::vector<float> FFT_analysis_result;
+    poddsp::c_sig_t FFT_analysis_result;
     FFT_analysis_result.reserve(count_of_samples);
-    FFT_analysis_result = poddsp::forwardFFT(impulse);
+    FFT_analysis_result = poddsp::forwardFFT(poddsp::quadro_cast(impulse));
 
 
-    poddsp::PlotConstructor::drawPlot(impulse, "Меандр");
-    poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(impulse, "Меандр");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
 
     FFT_analysis_result = poddsp::backwardFFT(FFT_analysis_result);
 
-    poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Опять сигнал");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(FFT_analysis_result, "Опять сигнал");
 
 
 }
@@ -311,11 +316,11 @@ TEST(transform, specturm_plots){
     auto freq = 4.0f;
     auto count_of_samples = 2000;
 
-    poddsp::s_sig_t Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples));
-    poddsp::PlotConstructor::drawPlot(Sine, "Исходный сигнал");
+    poddsp::c_sig_t Sine = poddsp::complexSin(freq, count_of_samples);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(Sine, "Исходный сигнал");
 
     auto Rotated_sine = poddsp::forwardFFT(Sine);
-    poddsp::PlotConstructor::drawPlot(Rotated_sine, "Повёрнутый сигнал");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(Rotated_sine, "Повёрнутый сигнал");
 }
 
 
@@ -323,11 +328,11 @@ TEST(transform, hilbert_transform){
     const auto freq = 4.0f;
     const auto count_of_samples = 4000;
 
-    poddsp::s_sig_t Sine = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples, 0));
+    poddsp::s_sig_t Sine = poddsp::projection::takeProjection(poddsp::complexSin(freq, count_of_samples, 0));
     poddsp::s_sig_t Hilberted = poddsp::transformHilbert(Sine);
 
-    poddsp::PlotConstructor::drawPlot(Sine, "Source sine");
-    poddsp::PlotConstructor::drawPlot(Hilberted, "Hilbert transformed sine");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(Sine, "Source sine");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(Hilberted, "Hilbert transformed sine");
 
 }
 
@@ -337,12 +342,12 @@ TEST(transform, quadro_cast){
     const auto count_of_samples = 4000;
 
     poddsp::c_sig_t Sine = poddsp::complexSin(freq, count_of_samples, 0);
-    poddsp::s_sig_t pSine = poddsp::PlotConstructor::makeProjection(Sine);
+    poddsp::s_sig_t pSine = poddsp::projection::takeProjection(Sine);
 
     poddsp::c_sig_t CSine = poddsp::quadro_cast(pSine);
-    poddsp::PlotConstructor::drawPlot(pSine, "Source sine complex");
-    poddsp::PlotConstructor::drawPlot(Sine, "Source sine projection");
-    poddsp::PlotConstructor::drawPlot(CSine, "Complex source sine");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(pSine, "Source sine complex");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(Sine, "Source sine projection");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(CSine, "Complex source sine");
 }
 
 TEST(transform, fftw_speed_test){
@@ -381,7 +386,7 @@ TEST(generators, AWGN_generator){
 
     poddsp::c_sig_t  complex_noise = poddsp::quadro_cast(poddsp::AWGN_generator(1000));
 
-    poddsp::PlotConstructor::drawPlot(complex_noise, "АГБШ");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(complex_noise, "АГБШ");
 }
 
 TEST(complex_functions, CFO_search){
@@ -422,14 +427,14 @@ TEST(complex_functions, CFO_search){
     c_sig_t res_arr;
 
     phase_dependence = complexSignalPhaseDependence(arr);
-
+    phase_dependence = poddsp::phaseDependenceLining(phase_dependence);
 //        PlotConstructor::drawPlot(phase_dependence, "фаза в сигнале");
 
     diff_phase_dependence = differentiation(phase_dependence);
 //        PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
 
     second_diff_phase_dependence = differentiation(diff_phase_dependence);
-//        PlotConstructor::drawPlot(second_diff_phase_dependence, "рост частоты в сигнале");
+        PlotConstructor::drawPlot(second_diff_phase_dependence, "рост частоты в сигнале");
 
     std::cout << signalMedValue(second_diff_phase_dependence) << std::endl;
 }
@@ -441,7 +446,7 @@ TEST(complex_functions, do_DC_offset_count) {
 
     constexpr auto dc_offset = 2.0f;
 
-    poddsp::s_sig_t sig = poddsp::PlotConstructor::makeProjection(poddsp::complexSin(freq, count_of_samples));
+    poddsp::s_sig_t sig = poddsp::projection::takeProjection(poddsp::complexSin(freq, count_of_samples));
     sig = poddsp::signalShelf(sig, dc_offset);
 
     ASSERT_EQ(poddsp::signalMedValue(sig), dc_offset);
@@ -456,27 +461,27 @@ TEST(complex_functions, heterodyne) {
     auto move_freq = 4.0f;
 
     std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, 0);
-    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier,
-                                                                                      poddsp::PlotConstructor::type_of_projection::real_projection);
-    std::vector<float> mag_modulation = poddsp::PlotConstructor::makeProjection(
+    std::vector<float> complex_carrier_real = poddsp::projection::takeProjection(complex_carrier,
+                                                                                      poddsp::projection::type_of_projection::real_projection);
+    std::vector<float> mag_modulation = poddsp::projection::takeProjection(
             poddsp::complexSin(info_freq, info_count_of_samples, -90));
-    poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
 
     std::vector<std::complex<float>> modulated_carrier = poddsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
-    std::vector<float> modulated_carrier_real = poddsp::PlotConstructor::makeProjection(modulated_carrier, poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-    std::vector<float> modulated_carrier_imag = poddsp::PlotConstructor::makeProjection(modulated_carrier);
+    std::vector<float> modulated_carrier_real = poddsp::projection::takeProjection(modulated_carrier, poddsp::projection::type_of_projection::imaginary_projection);
+    std::vector<float> modulated_carrier_imag = poddsp::projection::takeProjection(modulated_carrier);
 
-//    poddsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Проекция действительной части)");
-//    poddsp::PlotConstructor::drawPlot(modulated_carrier, "Амплитудно модулированный сигнал");
-    poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
-//    poddsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Проекция действительной части)");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier, "Амплитудно модулированный сигнал");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
+//    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
 
     poddsp::c_sig_t het_sig = poddsp::Heterodyne(move_freq, modulated_carrier, false);
-    std::vector<float> het_sig_real = poddsp::PlotConstructor::makeProjection(het_sig, poddsp::PlotConstructor::type_of_projection::imaginary_projection);
-    poddsp::PlotConstructor::drawPlot(het_sig_real, "Гетеродинированный Сигнал (Проекция действительной части)");
+    std::vector<float> het_sig_real = poddsp::projection::takeProjection(het_sig, poddsp::projection::type_of_projection::imaginary_projection);
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(het_sig_real, "Гетеродинированный Сигнал (Проекция действительной части)");
 
     auto demo_het_sig = poddsp::complexMagDemodulator(het_sig);
-    poddsp::PlotConstructor::drawPlot(demo_het_sig, "Снятый с демодулятора сигнал от гетеродинированного сигнала");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(demo_het_sig, "Снятый с демодулятора сигнал от гетеродинированного сигнала");
 
     std::cout
     << std::norm(poddsp::complexSequenceCorrelation(poddsp::quadro_cast(demo_het_sig), poddsp::quadro_cast(mag_modulation)))

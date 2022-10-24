@@ -4,8 +4,8 @@
 namespace poddsp {
 
 /// ToDo Добавить Точность для сглаживания графиков частоты и фазы, для эффективной работы гетеродина
-    std::vector<std::complex<float>> complexPLL(const float spec_freq, const std::vector<std::complex<float>> &incoming_samples,
-                                                int count_of_processing) {
+    std::vector<std::complex<float>> complexPLL(const std::vector<std::complex<float>> &incoming_samples,
+                                                float spec_freq) noexcept {
 
         std::vector<float> phase_dependence;
         std::vector<float> diff_phase_dependence;
@@ -13,9 +13,10 @@ namespace poddsp {
         std::vector<std::complex<float>> res_arr;
 
         phase_dependence = complexSignalPhaseDependence(incoming_samples);
-//        PlotConstructor::drawPlot(phase_dependence, "фаза в сигнале");
+        phase_dependence = phaseDependenceLining(phase_dependence);
+        PlotConstructor::drawPlot(phase_dependence, "фаза в сигнале");
 
-        diff_phase_dependence = differentiation(phase_dependence);
+        diff_phase_dependence = smoother(differentiation(phase_dependence));
 
 //        PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
 
@@ -24,27 +25,20 @@ namespace poddsp {
 
         res_arr = complexCFOCompensator(incoming_samples, signalMedValue(second_diff_phase_dependence));
 
-        phase_dependence = complexSignalPhaseDependence(incoming_samples);
-        diff_phase_dependence = differentiation(phase_dependence);
-
         {
-            auto freq = signalMedValue(diff_phase_dependence);
-            PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
-            if ( freq > spec_freq ) {
-                res_arr = Heterodyne( freq - spec_freq, res_arr, false);
-            } else if (freq < spec_freq) {
-                res_arr = Heterodyne( spec_freq - freq, res_arr);
+            bool freq_move_type = false;
+            phase_dependence = phaseDependenceLining(complexSignalPhaseDependence(res_arr));
+            phase_dependence = phaseModulationSkipEraser(phase_dependence);
+            auto freq = fabs(phase_dependence.back()TO_DEG/360);
+
+            if (spec_freq != freq and spec_freq != 0) {
+                if (spec_freq > freq) freq_move_type = true;
+                auto freq_diff = fabs(spec_freq - freq);
+                res_arr = Heterodyne((float)freq_diff, res_arr, freq_move_type);
             }
-            std::cout << freq << std::endl;
         }
 
         return res_arr;
-
-//        if (count_of_processing == 1) {
-//            return res_arr;
-//        } else {
-//            return complexPLL(spec_freq, res_arr, count_of_processing - 1);
-//        }
     }
 
     std::vector<std::complex<float>> complexCFOCompensator(const std::vector<std::complex<float>> &incoming_arr,
