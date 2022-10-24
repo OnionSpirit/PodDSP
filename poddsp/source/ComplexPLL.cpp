@@ -3,8 +3,8 @@
 
 namespace poddsp {
 
-/// ToDo Проверить логику работы
-    std::vector<std::complex<float>> complexPLL(const std::vector<std::complex<float>> &incoming_samples,
+/// ToDo Добавить Точность для сглаживания графиков частоты и фазы, для эффективной работы гетеродина
+    std::vector<std::complex<float>> complexPLL(const float spec_freq, const std::vector<std::complex<float>> &incoming_samples,
                                                 int count_of_processing) {
 
         std::vector<float> phase_dependence;
@@ -13,10 +13,10 @@ namespace poddsp {
         std::vector<std::complex<float>> res_arr;
 
         phase_dependence = complexSignalPhaseDependence(incoming_samples);
-
 //        PlotConstructor::drawPlot(phase_dependence, "фаза в сигнале");
 
         diff_phase_dependence = differentiation(phase_dependence);
+
 //        PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
 
         second_diff_phase_dependence = differentiation(diff_phase_dependence);
@@ -24,11 +24,27 @@ namespace poddsp {
 
         res_arr = complexCFOCompensator(incoming_samples, signalMedValue(second_diff_phase_dependence));
 
-        if (count_of_processing == 1) {
-            return res_arr;
-        } else {
-            return complexPLL(res_arr, count_of_processing - 1);
+        phase_dependence = complexSignalPhaseDependence(incoming_samples);
+        diff_phase_dependence = differentiation(phase_dependence);
+
+        {
+            auto freq = signalMedValue(diff_phase_dependence);
+            PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
+            if ( freq > spec_freq ) {
+                res_arr = Heterodyne( freq - spec_freq, res_arr, false);
+            } else if (freq < spec_freq) {
+                res_arr = Heterodyne( spec_freq - freq, res_arr);
+            }
+            std::cout << freq << std::endl;
         }
+
+        return res_arr;
+
+//        if (count_of_processing == 1) {
+//            return res_arr;
+//        } else {
+//            return complexPLL(spec_freq, res_arr, count_of_processing - 1);
+//        }
     }
 
     std::vector<std::complex<float>> complexCFOCompensator(const std::vector<std::complex<float>> &incoming_arr,

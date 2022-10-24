@@ -137,7 +137,7 @@ TEST(complex_functions, complexPLL) {
     std::vector<std::complex<float>> sine_wpo = poddsp::complexPhaseChanger(sine, 0.0f, phase_attenuation_per_sample_deg);
 //    PodDSP::PlotConstructor::drawPlot(sine_wpo, "Эталон с ошибкой");
 
-    std::vector<std::complex<float>> sine_wpo_fixed = poddsp::complexPLL(sine_wpo, 1);
+    std::vector<std::complex<float>> sine_wpo_fixed = poddsp::complexPLL(freq, sine_wpo, 1);
 //    PodDSP::PlotConstructor::drawPlot(sine_wpo_fixed, "Работа ФАПЧ с ошибочным сигналом");
 
     std::vector<float> sine_real = poddsp::PlotConstructor::makeProjection(sine,
@@ -183,7 +183,7 @@ TEST(complex_functions, complexPLL_with_modulated_signal){
     std::vector<float> modulated_carrier_wpo_real = poddsp::PlotConstructor::makeProjection(modulated_carrier_wpo);
     poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_real, "Амплитудно модулированный сигнал с ошибкой (Проекция действительной части)");
 //
-    std::vector<std::complex<float>> modulated_carrier_wpo_fixed = poddsp::complexPLL(modulated_carrier_wpo, 1);
+    std::vector<std::complex<float>> modulated_carrier_wpo_fixed = poddsp::complexPLL(freq, modulated_carrier_wpo, 1);
     std::vector<float> modulated_carrier_wpo_fixed_real = poddsp::PlotConstructor::makeProjection(modulated_carrier_wpo_fixed);
     poddsp::PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_real, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция действительной части)");
 //    std::cout << std::norm(poddsp::complexSequenceCorrelation(modulated_carrier, modulated_carrier_wpo_fixed));
@@ -257,7 +257,7 @@ TEST(complex_functions, BPSK_with_PLL){
     std::vector<float> bpsk_modulated_wpo_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated_wpo,
                                                                                          poddsp::PlotConstructor::type_of_projection::real_projection);
 
-    std::vector<std::complex<float>> bpsk_modulated_wpo_fixed = poddsp::complexPLL(bpsk_modulated_wpo);
+    std::vector<std::complex<float>> bpsk_modulated_wpo_fixed = poddsp::complexPLL(freq, bpsk_modulated_wpo);
 
     std::vector<float> bpsk_modulated_wpo_fixed_real = poddsp::PlotConstructor::makeProjection(bpsk_modulated_wpo_fixed,
                                                                                                poddsp::PlotConstructor::type_of_projection::real_projection);
@@ -270,11 +270,11 @@ TEST(complex_functions, BPSK_with_PLL){
 //    PodDSP::PlotConstructor::drawPlot(PodDSP::complexSignalPhaseDependence(complex_carrier), "Изменение фазы в несущем сигнале");
 
     poddsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
-    poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
+//    poddsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
 //    poddsp::PlotConstructor::drawPlot(bpsk_phase_function, "Изменение фазы в BPSK сигнале");
 //
-//    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
-//    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
+    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
+    poddsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
 
     std::cout << std::norm(poddsp::complexSequenceCorrelation(bpsk_modulated, bpsk_modulated_wpo_fixed));
 }
@@ -445,4 +445,40 @@ TEST(complex_functions, do_DC_offset_count) {
     sig = poddsp::signalShelf(sig, dc_offset);
 
     ASSERT_EQ(poddsp::signalMedValue(sig), dc_offset);
+}
+
+TEST(complex_functions, heterodyne) {
+    auto freq = 12.0f;
+    auto info_freq = 4.0f;
+    auto count_of_samples = 2000;
+    auto info_count_of_samples = 1000;
+
+    auto move_freq = 4.0f;
+
+    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, 0);
+    std::vector<float> complex_carrier_real = poddsp::PlotConstructor::makeProjection(complex_carrier,
+                                                                                      poddsp::PlotConstructor::type_of_projection::real_projection);
+    std::vector<float> mag_modulation = poddsp::PlotConstructor::makeProjection(
+            poddsp::complexSin(info_freq, info_count_of_samples, -90));
+    poddsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
+
+    std::vector<std::complex<float>> modulated_carrier = poddsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
+    std::vector<float> modulated_carrier_real = poddsp::PlotConstructor::makeProjection(modulated_carrier, poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+    std::vector<float> modulated_carrier_imag = poddsp::PlotConstructor::makeProjection(modulated_carrier);
+
+//    poddsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Проекция действительной части)");
+//    poddsp::PlotConstructor::drawPlot(modulated_carrier, "Амплитудно модулированный сигнал");
+    poddsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
+//    poddsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
+
+    poddsp::c_sig_t het_sig = poddsp::Heterodyne(move_freq, modulated_carrier, false);
+    std::vector<float> het_sig_real = poddsp::PlotConstructor::makeProjection(het_sig, poddsp::PlotConstructor::type_of_projection::imaginary_projection);
+    poddsp::PlotConstructor::drawPlot(het_sig_real, "Гетеродинированный Сигнал (Проекция действительной части)");
+
+    auto demo_het_sig = poddsp::complexMagDemodulator(het_sig);
+    poddsp::PlotConstructor::drawPlot(demo_het_sig, "Снятый с демодулятора сигнал от гетеродинированного сигнала");
+
+    std::cout
+    << std::norm(poddsp::complexSequenceCorrelation(poddsp::quadro_cast(demo_het_sig), poddsp::quadro_cast(mag_modulation)))
+    << std::endl;
 }
