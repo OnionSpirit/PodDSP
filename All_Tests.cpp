@@ -237,10 +237,19 @@ TEST(complex_functions, BPSK_with_PLL){
                                   true,
                                   true,
                                   true,
-                                  false};
+                                  false,
+                                  false,
+                                  true,
+                                  false,
+                                  false,
+                                  false,
+                                  false,
+                                  true,
+                                  true,
+                                  true,};
     auto freq = info_signal.size();
 //    auto count_of_samples = 1000;
-    auto phase_attenuation_per_sample_deg = 0.003f;
+    auto phase_attenuation_per_sample_deg = -0.003f;
 
 //    std::vector<std::complex<float>> complex_carrier = poddsp::complexSin(freq, count_of_samples, -90);
 //    std::vector<float> complex_carrier_real = poddsp::projection::takeProjection(complex_carrier,
@@ -249,7 +258,7 @@ TEST(complex_functions, BPSK_with_PLL){
 //    std::vector<float> complex_carrier_imag = poddsp::projection::takeProjection(complex_carrier,
 //                                                                                      poddsp::projection::type_of_projection::imaginary_projection);
 
-    std::vector<std::complex<float>> bpsk_modulated = poddsp::complexBPSKModulator(info_signal);
+    std::vector<std::complex<float>> bpsk_modulated = poddsp::complexBPSKModulator(info_signal, 200);
     std::vector<float> bpsk_modulated_real = poddsp::projection::takeProjection(bpsk_modulated,
                                                                                 poddsp::projection::type_of_projection::real_projection);
 

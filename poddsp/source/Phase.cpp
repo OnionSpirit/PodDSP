@@ -89,26 +89,6 @@ namespace poddsp {
         return res_arr;
     }
 
-    std::vector<float> phaseDependenceLining(const std::vector<float>& phase_graph) noexcept {
-
-        auto len = phase_graph.size();
-        float boost_up = 0;
-        std::vector<float> t_s; t_s.resize(len);
-        for(int i = 0; i < len; i++) {
-
-            if (i > 0 and phase_graph[i] * 2 < phase_graph[i-1]) {
-
-                boost_up += 2 * M_PI;
-            } else if (i > 0 and phase_graph[i] * 2 > phase_graph[i-1]) {
-
-                boost_up -= 2 * M_PI;
-            }
-            t_s[i] = phase_graph[i] + boost_up;
-        }
-
-        return t_s;
-    }
-
     s_sig_t phaseModulationSkipEraser(const s_sig_t& ph, float eps) noexcept {
 
         if (0 == eps) {
@@ -141,5 +121,23 @@ namespace poddsp {
             intrm_ph[i] += shelf;
         }
         return intrm_ph;
+    }
+
+    std::vector<float> phaseDependenceLining(const std::vector<float>& ph) noexcept {
+
+        auto len = ph.size();
+        float boost_up = 0;
+
+        std::vector<float> t_s; t_s.resize(len);
+        for(int i = 0; i < len; i++) {
+
+            if (i > 0 and ph[i] * 2 < ph[i-1]) {
+
+                boost_up += 2 * M_PI;
+            }
+            t_s[i] = ph[i] + boost_up;
+        }
+
+        return t_s;
     }
 }

@@ -14,15 +14,8 @@ namespace poddsp {
 
         phase_dependence = complexSignalPhaseDependence(incoming_samples);
         phase_dependence = phaseDependenceLining(phase_dependence);
-        PlotConstructor::drawPlot(phase_dependence, "фаза в сигнале");
-
         diff_phase_dependence = smoother(differentiation(phase_dependence));
-
-//        PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
-
         second_diff_phase_dependence = differentiation(diff_phase_dependence);
-//        PlotConstructor::drawPlot(second_diff_phase_dependence, "рост частоты в сигнале");
-
         res_arr = complexCFOCompensator(incoming_samples, signalMedValue(second_diff_phase_dependence));
 
         {
@@ -33,7 +26,7 @@ namespace poddsp {
 
             if (spec_freq != freq and spec_freq != 0) {
                 if (spec_freq > freq) freq_move_type = true;
-                auto freq_diff = fabs(spec_freq - freq);
+                int freq_diff = fabs(spec_freq - freq);
                 res_arr = Heterodyne((float)freq_diff, res_arr, freq_move_type);
             }
         }
@@ -47,10 +40,10 @@ namespace poddsp {
         return complexPhaseChanger(incoming_arr,  0.0f, -static_cast<float>(phase_attenuation_per_sample_rad TO_DEG));
     }
 /// Todo Просмотреть
-    std::vector<float> differentiation(const std::vector<float> &incoming_dependence){
+    std::vector<float> differentiation(const std::vector<float> &incoming_dependence) noexcept {
 
         if(incoming_dependence.size() < 2){
-            throw std::invalid_argument("Too short array");
+            return incoming_dependence;
         }
         std::vector<float> res_dependence;
         float curr_diff = 0.0f;

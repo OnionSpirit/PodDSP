@@ -6,7 +6,7 @@ namespace poddsp {
                                                            const float &)
     noexcept;
 
-    std::vector<float> differentiation(const std::vector<float> &);
+    std::vector<float> differentiation(const std::vector<float> &) noexcept;
 
 /// ФАПЧ для комплексного сигнала.
 /// Параметры:
