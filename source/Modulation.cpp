@@ -1,7 +1,7 @@
-#include "../include/poddsp.h"
+#include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     /// ToDo сделать нормальную квадратурную составляющую сигнала
     std::vector<std::complex<float>> complexMagModulator(const std::vector<std::complex<float>> & carrier_buffer,
@@ -34,20 +34,15 @@ namespace poddsp {
 
         float mag;
         float current_phase;
-        for(int i = 0; i < carrier_buffer.size(); i++){
-            mag = complexMagMeasurer(carrier_buffer[i]);
-            mag *= complexMagMeasurer(information_signal[i]);
+        for(int i = 0; i < carrier_buffer.size(); i++) {
+            mag = complexVectorMagnitude(carrier_buffer[i]);
+            mag *= complexVectorMagnitude(information_signal[i]);
             current_phase = complexVectorPhase(carrier_buffer[i]);
             current_phase += complexVectorPhase(information_signal[i]);
             res_arr.emplace_back(std::complex<float>{
                     mag * static_cast<float>(cos(static_cast<double>(current_phase))),
                     mag * static_cast<float>(sin(static_cast<double>(current_phase)))});
         }
-
-        for(auto e : res_arr){
-            intrm_arr.emplace_back(e.real());
-        }
-        res_arr = quadro_cast(intrm_arr);
 
         return res_arr;
     }
@@ -57,7 +52,7 @@ namespace poddsp {
         std::vector<float> res_arr;
         res_arr.reserve(modulated_signal.size());
         for(auto e : modulated_signal){
-            res_arr.emplace_back(complexMagMeasurer(e));
+            res_arr.emplace_back(complexVectorMagnitude(e));
         }
         res_arr = signalShelf(res_arr, -signalMedValue(res_arr));
         return res_arr;
@@ -69,9 +64,9 @@ namespace poddsp {
 
         int periods_counter = static_cast<int>(info_seq.size());
 
-        std::vector<float> carrier = PlotConstructor::makeProjection(
+        std::vector<float> carrier = projection::takeProjection(
                 complexSin(static_cast<float>(periods_counter),
-                           periods_counter*samples_per_symbol, -90));
+                           periods_counter*samples_per_symbol));
 
         auto modulation_step = static_cast<float>(carrier.size()) / static_cast<float>(periods_counter);
 

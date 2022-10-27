@@ -1,7 +1,7 @@
-#include "../include/poddsp.h"
+#include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     void PlotConstructor::drawComplexPlot(const std::vector<std::complex<float>> &data,
                                           const std::string &title,
@@ -23,24 +23,5 @@ namespace poddsp {
         pclose(gp);
 
         if (remove("plotData.dat")) std::cout << "Temporary file removing failure" << std::endl;
-    }
-
-    std::vector<float> PlotConstructor::makeProjection(const std::vector<std::complex<float>> &arr,
-                                                       const type_of_projection &type) {
-        std::vector<float> res_arr;
-        switch (type) {
-            case 0:
-                for (auto e: arr) {
-                    res_arr.emplace_back(e.real());
-                }
-                return res_arr;
-            case 1:
-                for (auto e: arr) {
-                    res_arr.emplace_back(e.imag());
-                }
-                return res_arr;
-            default:
-                throw std::invalid_argument(ERROR_PLOT"Incorrect projection type");
-        }
     }
 }

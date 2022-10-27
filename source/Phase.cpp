@@ -1,7 +1,7 @@
-#include "../include/poddsp.h"
+#include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     std::complex<float> complexIntermediatePhaseCalculating(const std::vector<std::complex<float>> &samples_set) {
         int n = samples_set.size();
@@ -22,13 +22,19 @@ namespace poddsp {
     float complexPhaseCalculating(const std::vector<std::complex<float>> &samples_S,
                                   const std::vector<std::complex<float>> &samples_X)
     noexcept {
-        std::complex<float> J{0, 1};
         std::complex<float> phase = 0.0f;
-        float deg_phase;
+        float deg_phase =0.0f;
 
-        phase = J *
-                log(complexIntermediatePhaseCalculating(samples_S) / complexIntermediatePhaseCalculating(samples_X));
-        deg_phase = static_cast<float>(phase.real() * 180 / M_PI);
+        try {
+            phase = J *
+                    log(complexIntermediatePhaseCalculating(samples_S) /
+                        complexIntermediatePhaseCalculating(samples_X));
+            deg_phase = static_cast<float>(phase.real() * 180 / M_PI);
+        }
+
+        catch (std::exception& e) {
+            e.what();
+        }
 
         return deg_phase;
     }
@@ -39,7 +45,7 @@ namespace poddsp {
     noexcept {
 
         std::vector<std::complex<float>> res_arr;
-        auto additional_phase_rad = (float) (additional_phase_deg * M_PI / 180);
+        auto additional_phase_rad = (float) (additional_phase_deg TO_RAD);
         auto phase_time_offset_rad = (float) (phase_attenuation_per_sample_deg TO_RAD);
         auto unique_sample_phase_offset = 0.0f;
         float arg;
@@ -47,7 +53,7 @@ namespace poddsp {
         for (float i = 0.0f; auto e: incoming_arr) {
             current_phase = complexVectorPhase(e);
             if (current_phase < 0) current_phase += (2 * M_PI);
-            arg = complexMagMeasurer(e);
+            arg = complexVectorMagnitude(e);
             unique_sample_phase_offset += i * phase_time_offset_rad;
             while (fabs(unique_sample_phase_offset) > 2 * M_PI) {
                 if (phase_attenuation_per_sample_deg > 0.0f) unique_sample_phase_offset -= 2 * M_PI;
@@ -70,7 +76,7 @@ namespace poddsp {
 
     float complexVectorPhase(const std::complex<float>& sample) noexcept {
         auto phase = static_cast<float>(atan2(static_cast<double>(sample.imag()), static_cast<double>(sample.real())));
-//        if(phase < 0)  phase += 2 * M_PI;
+        if(phase < 0)  phase += 2 * M_PI;
         return phase;
     }
 
@@ -81,5 +87,57 @@ namespace poddsp {
             res_arr.emplace_back(complexVectorPhase(e));
         }
         return res_arr;
+    }
+
+    s_sig_t phaseModulationSkipEraser(const s_sig_t& ph, float eps) noexcept {
+
+        if (0 == eps) {
+
+            s_sig_t diffs; diffs.resize(ph.size());
+
+            for(int i =0; i < ph.size(); i++) {
+
+                if (i > 0) {
+                    diffs[i] = ph[i]-ph[i-1];
+                }
+            }
+
+            eps = signalMedValue(diffs) + 0.05f;
+        }
+
+        auto intrm_ph = ph;
+        float shelf;
+        if(ph.back() >= ph.front()) {
+            shelf = -signalMinValue(ph);
+        } else {
+            shelf = signalMaxValue(ph);
+        }
+        for(int i =0; i < ph.size(); i++) {
+            if(i > 0 and ph[i] > (ph[i-1] + eps)) {
+                shelf -= (ph[i] - ph[i-1]);
+            } else if (i > 0 and ph[i] + eps < ph[i-1]) {
+                shelf += (ph[i-1] - ph[i]);
+            }
+            intrm_ph[i] += shelf;
+        }
+        return intrm_ph;
+    }
+
+    std::vector<float> phaseDependenceLining(const std::vector<float>& ph) noexcept {
+
+        auto len = ph.size();
+        float boost_up = 0;
+
+        std::vector<float> t_s; t_s.resize(len);
+        for(int i = 0; i < len; i++) {
+
+            if (i > 0 and ph[i] * 2 < ph[i-1]) {
+
+                boost_up += 2 * M_PI;
+            }
+            t_s[i] = ph[i] + boost_up;
+        }
+
+        return t_s;
     }
 }

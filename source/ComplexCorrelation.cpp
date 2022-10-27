@@ -1,11 +1,12 @@
-#include "../include/poddsp.h"
+#include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
-    std::vector<std::complex<float>> sequenceCentralizer(const std::vector<std::complex<float>> &sequence,
-                                                         int sequence_size)
+    std::vector<std::complex<float>> sequenceCentralizer(const std::vector<std::complex<float>> &sequence)
     noexcept {
+
+        auto sequence_size = sequence.size();
 
         std::complex<float> average;
         std::vector<std::complex<float>> centralized_sequence;
@@ -23,14 +24,26 @@ namespace poddsp {
         return centralized_sequence;
     }
 
-    std::complex<float> dispersion(const std::vector<std::complex<float>> &sequence,
-                                   int sequence_size)
-    noexcept {
+    std::complex<float> dispersion(const std::vector<std::complex<float>> &sequence) noexcept {
+        auto sequence_size = sequence.size();
 
         std::complex<float> D;
 
         for (std::complex<float> e: sequence) {
             D += std::norm(e);
+        }
+        D *= (1.0f / static_cast<float>(sequence_size));
+
+        return D;
+    }
+
+    float dispersion(const s_sig_t &sequence) noexcept {
+        auto sequence_size = sequence.size();
+
+        float D;
+
+        for (auto& e: sequence) {
+            D += e;
         }
         D *= (1.0f / static_cast<float>(sequence_size));
 
@@ -51,14 +64,14 @@ namespace poddsp {
         }
 
         std::vector<std::complex<float>> centralized_sequence_original =
-                sequenceCentralizer(original_sequence, sequence_size);
+                sequenceCentralizer(original_sequence);
         std::vector<std::complex<float>> centralized_sequence_incoming =
-                sequenceCentralizer(conjugated_incoming_sequence, sequence_size);
+                sequenceCentralizer(conjugated_incoming_sequence);
 
         std::complex<float> dispersion_original =
-                dispersion(centralized_sequence_original, sequence_size);
+                dispersion(centralized_sequence_original);
         std::complex<float> dispersion_incoming =
-                dispersion(centralized_sequence_incoming, sequence_size);
+                dispersion(centralized_sequence_incoming);
 
         for (int i = 0; i < sequence_size; i++) {
             correlation_result +=
