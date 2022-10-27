@@ -1,4 +1,4 @@
-#include "../include/poddsp.h"
+#include "../include/vssdsp.h"
 
 
 namespace poddsp {
@@ -21,8 +21,8 @@ namespace poddsp {
         auto initial_phase_rad = static_cast<float>(2 * M_PI * initial_phase_deg / 360);
 
         for (int i = 0; i < count_of_samples; i++) {
-            sample.real(static_cast<float>(cos(static_cast<double>(static_cast<float>(i) * sample_phase_offset + initial_phase_rad))));
-            sample.imag(static_cast<float>(sin(static_cast<double>(static_cast<float>(i) * sample_phase_offset + initial_phase_rad))));
+            sample.real(static_cast<float>(sin(static_cast<double>(static_cast<float>(i) * sample_phase_offset + initial_phase_rad))));
+            sample.imag(static_cast<float>(cos(static_cast<double>(static_cast<float>(i) * sample_phase_offset + initial_phase_rad))));
             generated_signal.emplace_back(sample);
         }
         return generated_signal;

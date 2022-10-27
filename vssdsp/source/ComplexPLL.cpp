@@ -1,4 +1,4 @@
-#include "../include/poddsp.h"
+#include "../include/vssdsp.h"
 
 
 namespace poddsp {
@@ -37,7 +37,7 @@ namespace poddsp {
     std::vector<std::complex<float>> complexCFOCompensator(const std::vector<std::complex<float>> &incoming_arr,
                                                            const float &phase_attenuation_per_sample_rad) noexcept {
 
-        return complexPhaseChanger(incoming_arr,  0.0f, -static_cast<float>(phase_attenuation_per_sample_rad TO_DEG));
+        return complexPhaseChanger(incoming_arr,  -90.0f, -static_cast<float>(phase_attenuation_per_sample_rad TO_DEG));
     }
 /// Todo Просмотреть
     std::vector<float> differentiation(const std::vector<float> &incoming_dependence) noexcept {

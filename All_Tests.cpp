@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <ctime>
 
-#include <poddsp.h>
+#include <vssdsp.h>
 
 #define RANDOM_NUMBER 1 + rand()%10
-#define DO_PLOTS true
+#define DO_PLOTS false
 
 
 TEST(complex_functions, complex_correlation_calculation){
@@ -56,14 +56,14 @@ TEST(complex_functions, resampling_complex_signal){
 /// Draw 2M Real plots
 
     std::vector<float> original_long_seq_Re = poddsp::projection::takeProjection(original_long_seq);
-    if constexpr (DO_PLOTS)if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_long_seq_Re, ("RE " + std::to_string(count_of_samples) + " samples"));
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_long_seq_Re, ("RE " + std::to_string(count_of_samples) + " samples"));
 
     std::vector<float> original_short_seq_Re = poddsp::projection::takeProjection(original_short_seq);
-    if constexpr (DO_PLOTS)if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_short_seq_Re,
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(original_short_seq_Re,
                                       ("RE " + std::to_string(new_count_of_samples) + " samples"));
 
     std::vector<float> resampled_short_seq_Re = poddsp::projection::takeProjection(resampled_short_seq);
-    if constexpr (DO_PLOTS)if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(resampled_short_seq_Re,
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(resampled_short_seq_Re,
                                       ("RE " + std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 
@@ -329,7 +329,8 @@ TEST(transform, specturm_plots){
     if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(Sine, "Исходный сигнал");
 
     auto Rotated_sine = poddsp::forwardFFT(Sine);
-    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(Rotated_sine, "Повёрнутый сигнал");
+    if constexpr (DO_PLOTS) poddsp::PlotConstructor::drawPlot(poddsp::projection::takeProjection(Rotated_sine, poddsp::projection::imaginary_projection),
+                                                              "Повёрнутый сигнал");
 }
 
 
@@ -495,4 +496,57 @@ TEST(complex_functions, heterodyne) {
     std::cout
     << std::norm(poddsp::complexSequenceCorrelation(poddsp::quadro_cast(demo_het_sig), poddsp::quadro_cast(mag_modulation)))
     << std::endl;
+}
+
+
+
+TEST(other, cutoff_compensation) {
+    using namespace poddsp;
+    #define PlotConstructor if constexpr (DO_PLOTS) PlotConstructor
+
+    constexpr auto count_of_samples = 10000;
+    constexpr auto freq = 10.0f;
+    constexpr auto SigMag = 1.9f;
+    constexpr auto NsMag = 0.8f;
+    constexpr auto CutLvl = 1.5f;
+
+    c_sig_t complex_signal = complexSin(freq, count_of_samples);
+    complex_signal = amplifier(complex_signal, SigMag);
+    PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Original Sin");
+
+    auto noise = AWGN_generator(count_of_samples);
+    noise = amplifier(noise, NsMag);
+    PlotConstructor::drawPlot(noise, "Noise");
+
+    for(int i =0; auto &e : complex_signal) {
+        auto n_s = noise[i];
+        e.real(e.real() + n_s);
+        e.imag(e.imag() + n_s);
+        i++;
+    }
+
+    PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Noised Sin");
+
+    complex_signal = cutoff(complex_signal, CutLvl);
+    auto max_taken_val = signalMaxValue(projection::takeProjection(complex_signal));
+    PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Cut Sin");
+
+    s_sig_t mags;
+    for(auto &e : complex_signal) {
+        mags.emplace_back(complexVectorMagnitude(e));
+    }
+    mags = smoother(mags);
+    auto eps = 1.0f/(20.0f * signalMaxValue(mags) * dispersion(mags)); /*eps = 0.01f;*/
+    auto mags_interm = s_sig_t();
+    for (float & mag : mags) {
+        if (mag < (max_taken_val + 10.0f*eps)) {
+            continue;
+        }
+        mags_interm.emplace_back(mag);
+    } mags = mags_interm;
+    std::cout << "Eps: " << eps << std::endl;
+    std::cout << "Magnitude is: " << findModeWithEps(mags, eps) << std::endl;
+    std::cout << "SNR: " << 20 * logf(SigMag / NsMag) << std::endl;
+    std::cout << "Mag cut percent: " << ((SigMag - CutLvl) / SigMag)*100 << "%" << std::endl;
+    PlotConstructor::drawPlot(mags, "Samples Mags");
 }

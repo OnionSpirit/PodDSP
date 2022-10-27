@@ -20,9 +20,9 @@ add_executable(${PROJECT_NAME}
         )
 
 #
-add_subdirectory(poddsp)
-target_include_directories(${PROJECT_NAME} PRIVATE poddsp/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE poddsp)
+add_subdirectory(vssdsp)
+target_include_directories(${PROJECT_NAME} PRIVATE vssdsp/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE vssdsp)
 #
 
 target_link_libraries(${PROJECT_NAME} PRIVATE gtest)

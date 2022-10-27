@@ -1,4 +1,4 @@
-#include "../include/poddsp.h"
+#include "../include/vssdsp.h"
 
 
 namespace poddsp {
@@ -45,7 +45,7 @@ namespace poddsp {
     noexcept {
 
         std::vector<std::complex<float>> res_arr;
-        auto additional_phase_rad = (float) (additional_phase_deg * M_PI / 180);
+        auto additional_phase_rad = (float) (additional_phase_deg TO_RAD);
         auto phase_time_offset_rad = (float) (phase_attenuation_per_sample_deg TO_RAD);
         auto unique_sample_phase_offset = 0.0f;
         float arg;
@@ -53,7 +53,7 @@ namespace poddsp {
         for (float i = 0.0f; auto e: incoming_arr) {
             current_phase = complexVectorPhase(e);
             if (current_phase < 0) current_phase += (2 * M_PI);
-            arg = complexMagMeasurer(e);
+            arg = complexVectorMagnitude(e);
             unique_sample_phase_offset += i * phase_time_offset_rad;
             while (fabs(unique_sample_phase_offset) > 2 * M_PI) {
                 if (phase_attenuation_per_sample_deg > 0.0f) unique_sample_phase_offset -= 2 * M_PI;
