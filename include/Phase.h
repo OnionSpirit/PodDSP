@@ -19,6 +19,8 @@ namespace vssdsp {
 
 /// Вычисление фазы комплексного вектора
     float complexVectorPhase(const std::complex<float> &) noexcept;
+/// Строит линейный график фазы
+    std::vector<float> phaseDependenceLining(const std::vector<float>& phase_graph) noexcept;
 
 /// Рассчитывает фактическую набежавшую фазу сигнала
 /// вне зависимости от модуляционных фазовых скачков,
