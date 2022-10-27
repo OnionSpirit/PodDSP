@@ -5,6 +5,9 @@
 
 #define RANDOM_NUMBER 1 + rand()%10
 #define DO_PLOTS false
+#define PlotConstructor  if constexpr (DO_PLOTS) PlotConstructor
+
+using namespace vssdsp;
 
 
 TEST(complex_functions, complex_correlation_calculation){
@@ -12,22 +15,22 @@ TEST(complex_functions, complex_correlation_calculation){
     int sequence_length = 10;
     srand(time(nullptr));
 
-    std::vector<std::complex<float>> original_sequence;
-    std::vector<std::complex<float>> incoming_sequence;
+     c_sig_t original_sequence;
+     c_sig_t incoming_sequence;
 
     for(int i = 0; i < sequence_length; i++){
         original_sequence.emplace_back(RANDOM_NUMBER); original_sequence.back().imag(RANDOM_NUMBER);
         incoming_sequence.emplace_back(RANDOM_NUMBER); incoming_sequence.back().imag(RANDOM_NUMBER);
     }
 
-    std::cout << vssdsp::complexSequenceCorrelation(original_sequence, original_sequence) << std::endl;
+    std::cout << complexSequenceCorrelation(original_sequence, original_sequence) << std::endl;
 }
 
 TEST(complex_functions, generating_complex_signal){
 
     auto freq = 10.0f;
     auto count_of_samples = 10000;
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(vssdsp::complexSin(freq, count_of_samples), "Sine " + std::to_string(freq));
+    PlotConstructor::drawPlot(complexSin(freq, count_of_samples), "Sine " + std::to_string(freq));
 }
 
 TEST(complex_functions, resampling_complex_signal){
@@ -36,55 +39,55 @@ TEST(complex_functions, resampling_complex_signal){
     auto count_of_samples = 1000;
     auto new_count_of_samples = 2500;
 
-    std::vector<std::complex<float>> original_long_seq = vssdsp::complexSin(freq, count_of_samples);
-    std::vector<std::complex<float>> original_short_seq = vssdsp::complexSin(freq, new_count_of_samples);
-    std::vector<std::complex<float>> resampled_short_seq;
+    c_sig_t original_long_seq = complexSin(freq, count_of_samples);
+    c_sig_t original_short_seq = complexSin(freq, new_count_of_samples);
+    c_sig_t resampled_short_seq;
 
-    vssdsp::complexSignalResampler(original_long_seq, resampled_short_seq, new_count_of_samples);
+    complexSignalResampler(original_long_seq, resampled_short_seq, new_count_of_samples);
 
 
 /// Draw 3M plots
 
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(original_long_seq,
+//     PlotConstructor::drawPlot(original_long_seq,
 //                                      (std::to_string(count_of_samples) + " samples"));
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(original_short_seq,
+//     PlotConstructor::drawPlot(original_short_seq,
 //                                      (std::to_string(new_count_of_samples) + " samples"));
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(resampled_short_seq,
+//     PlotConstructor::drawPlot(resampled_short_seq,
 //                                      (std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 
 /// Draw 2M Real plots
 
-    std::vector<float> original_long_seq_Re = vssdsp::projection::takeProjection(original_long_seq);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(original_long_seq_Re, ("RE " + std::to_string(count_of_samples) + " samples"));
+     s_sig_t original_long_seq_Re = projection::takeProjection(original_long_seq);
+    PlotConstructor::drawPlot(original_long_seq_Re, ("RE " + std::to_string(count_of_samples) + " samples"));
 
-    std::vector<float> original_short_seq_Re = vssdsp::projection::takeProjection(original_short_seq);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(original_short_seq_Re,
+     s_sig_t original_short_seq_Re = projection::takeProjection(original_short_seq);
+    PlotConstructor::drawPlot(original_short_seq_Re,
                                       ("RE " + std::to_string(new_count_of_samples) + " samples"));
 
-    std::vector<float> resampled_short_seq_Re = vssdsp::projection::takeProjection(resampled_short_seq);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(resampled_short_seq_Re,
+     s_sig_t resampled_short_seq_Re = projection::takeProjection(resampled_short_seq);
+    PlotConstructor::drawPlot(resampled_short_seq_Re,
                                       ("RE " + std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 
 /// Draw 2M Imaginary plots
 
-//    std::vector<float> original_long_seq_Im =
-//            vssdsp::projection::takeProjection(original_long_seq,
-//                                                    vssdsp::projection::type_of_projection::imaginary_projection);
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(original_long_seq_Im,
+//     s_sig_t original_long_seq_Im =
+//            projection::takeProjection(original_long_seq,
+//                                                    projection::type_of_projection::imaginary_projection);
+//     PlotConstructor::drawPlot(original_long_seq_Im,
 //                                      ("IM " + std::to_string(count_of_samples) + " samples"));
 //
-//    std::vector<float> original_short_seq_Im =
-//            vssdsp::projection::takeProjection(original_short_seq,
-//                                                    vssdsp::projection::type_of_projection::imaginary_projection);
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(original_short_seq_Im,
+//     s_sig_t original_short_seq_Im =
+//            projection::takeProjection(original_short_seq,
+//                                                    projection::type_of_projection::imaginary_projection);
+//     PlotConstructor::drawPlot(original_short_seq_Im,
 //                                      ("IM " + std::to_string(new_count_of_samples) + " samples"));
 //
-//    std::vector<float> resampled_short_seq_Im =
-//            vssdsp::projection::takeProjection(resampled_short_seq,
-//                                                    vssdsp::projection::type_of_projection::imaginary_projection);
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(resampled_short_seq_Im,
+//     s_sig_t resampled_short_seq_Im =
+//            projection::takeProjection(resampled_short_seq,
+//                                                    projection::type_of_projection::imaginary_projection);
+//     PlotConstructor::drawPlot(resampled_short_seq_Im,
 //                                      ("IM " + std::to_string(count_of_samples) + " to " + std::to_string(new_count_of_samples) + " samples"));
 
 }
@@ -94,13 +97,13 @@ TEST(complex_functions, phase_calculator){
     auto freq = 5.0f;
     auto count_of_samples = 100;
     auto count_of_periods = 4;
-    std::vector<std::complex<float>> sine;
-    std::vector<std::complex<float>> cos;
+    c_sig_t sine;
+    c_sig_t cos;
 
     for (int i = 0; i < 362; i++) {
-        sine = vssdsp::complexSin(freq, count_of_samples);
-        cos = vssdsp::complexSin(freq, count_of_samples, i);
-        auto phase = vssdsp::complexPhaseCalculating(sine, cos);
+        sine = complexSin(freq, count_of_samples);
+        cos = complexSin(freq, count_of_samples, i);
+        auto phase = complexPhaseCalculating(sine, cos);
         std::cout << phase << std::endl;
     }
 }
@@ -111,19 +114,19 @@ TEST(complex_functions, phase_rotation){
     auto count_of_samples = 1000;
     auto phase_offset_in_time = 0.0001f;
     auto phase_common_offset = 0.0f;
-    std::vector<std::complex<float>> sine;
-    std::vector<std::complex<float>> rotated_sine;
-    std::vector<std::complex<float>> rotated_with_offset_in_time_sine;
-    std::vector<std::complex<float>> disoffseted_sine;
-    sine = vssdsp::complexSin(freq, count_of_samples);
-    rotated_sine = vssdsp::complexPhaseChanger(sine, phase_common_offset);
-    rotated_with_offset_in_time_sine = vssdsp::complexPhaseChanger(sine, phase_common_offset, phase_offset_in_time);
-    disoffseted_sine = vssdsp::complexPhaseChanger(rotated_with_offset_in_time_sine, -phase_common_offset, -phase_offset_in_time);
+    c_sig_t sine;
+    c_sig_t rotated_sine;
+    c_sig_t rotated_with_offset_in_time_sine;
+    c_sig_t disoffseted_sine;
+    sine = complexSin(freq, count_of_samples);
+    rotated_sine = complexPhaseChanger(sine, phase_common_offset);
+    rotated_with_offset_in_time_sine = complexPhaseChanger(sine, phase_common_offset, phase_offset_in_time);
+    disoffseted_sine = complexPhaseChanger(rotated_with_offset_in_time_sine, -phase_common_offset, -phase_offset_in_time);
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(sine, "OriginalSine");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(rotated_sine, "RotatedSine");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(rotated_with_offset_in_time_sine, "RotatedwithOffSine");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(disoffseted_sine, "DisoffsetedSine");
+    PlotConstructor::drawPlot(sine, "OriginalSine");
+    PlotConstructor::drawPlot(rotated_sine, "RotatedSine");
+    PlotConstructor::drawPlot(rotated_with_offset_in_time_sine, "RotatedwithOffSine");
+    PlotConstructor::drawPlot(disoffseted_sine, "DisoffsetedSine");
 }
 
 TEST(complex_functions, complexPLL) {
@@ -132,28 +135,28 @@ TEST(complex_functions, complexPLL) {
     auto count_of_samples = 2000;
     auto phase_attenuation_per_sample_deg = -0.003f;
 
-    std::vector<std::complex<float>> sine = vssdsp::complexSin(freq, count_of_samples);
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(sine, "Эталон");
+     c_sig_t sine = complexSin(freq, count_of_samples);
+//     PlotConstructor::drawPlot(sine, "Эталон");
 
-    std::vector<std::complex<float>> sine_wpo = vssdsp::complexPhaseChanger(sine, 0.0f, phase_attenuation_per_sample_deg);
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(sine_wpo, "Эталон с ошибкой");
+     c_sig_t sine_wpo = complexPhaseChanger(sine, 0.0f, phase_attenuation_per_sample_deg);
+//     PlotConstructor::drawPlot(sine_wpo, "Эталон с ошибкой");
 
-    std::vector<std::complex<float>> sine_wpo_fixed = vssdsp::complexPLL(sine_wpo, freq);
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(sine_wpo_fixed, "Работа ФАПЧ с ошибочным сигналом");
+     c_sig_t sine_wpo_fixed = complexPLL(sine_wpo, freq);
+//     PlotConstructor::drawPlot(sine_wpo_fixed, "Работа ФАПЧ с ошибочным сигналом");
 
-    std::vector<float> sine_real = vssdsp::projection::takeProjection(sine,
-                                                                           vssdsp::projection::type_of_projection::real_projection);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(sine_real, "Эталон (Проекция действительной части)");
+     s_sig_t sine_real = projection::takeProjection(sine,
+                                                                           projection::type_of_projection::real_projection);
+     PlotConstructor::drawPlot(sine_real, "Эталон (Проекция действительной части)");
 
-    std::vector<float> sine_wpo_real = vssdsp::projection::takeProjection(sine_wpo,
-                                                                               vssdsp::projection::type_of_projection::real_projection);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(sine_wpo_real, "Эталон с ошибкой (Проекция действительной части)");
+     s_sig_t sine_wpo_real = projection::takeProjection(sine_wpo,
+                                                                               projection::type_of_projection::real_projection);
+     PlotConstructor::drawPlot(sine_wpo_real, "Эталон с ошибкой (Проекция действительной части)");
 
-    std::vector<float> sine_wpo_fixed_real = vssdsp::projection::takeProjection(sine_wpo_fixed,
-                                                                                     vssdsp::projection::type_of_projection::real_projection);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(sine_wpo_fixed_real, "Эталон с ошибкой, исправленной ФАПЧ (Проекция действительной части)");
+     s_sig_t sine_wpo_fixed_real = projection::takeProjection(sine_wpo_fixed,
+                                                                                     projection::type_of_projection::real_projection);
+     PlotConstructor::drawPlot(sine_wpo_fixed_real, "Эталон с ошибкой, исправленной ФАПЧ (Проекция действительной части)");
 
-    std::cout << std::norm(vssdsp::complexSequenceCorrelation(sine, sine_wpo_fixed));
+    std::cout << std::norm(complexSequenceCorrelation(sine, sine_wpo_fixed));
 }
 
 TEST(complex_functions, complexPLL_with_modulated_signal){
@@ -163,36 +166,36 @@ TEST(complex_functions, complexPLL_with_modulated_signal){
     auto info_count_of_samples = 1000;
     auto phase_attenuation_per_sample_deg = 0.001f;
 
-    std::vector<std::complex<float>> complex_carrier = vssdsp::complexSin(freq, count_of_samples, 0);
-    std::vector<float> complex_carrier_real = vssdsp::projection::takeProjection(complex_carrier,
-                                                                                      vssdsp::projection::type_of_projection::real_projection);
-    std::vector<float> mag_modulation = vssdsp::projection::takeProjection(
-            vssdsp::complexSin(info_freq, info_count_of_samples));
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
+     c_sig_t complex_carrier = complexSin(freq, count_of_samples, 0);
+     s_sig_t complex_carrier_real = projection::takeProjection(complex_carrier,
+                                                                                      projection::type_of_projection::real_projection);
+     s_sig_t mag_modulation = projection::takeProjection(
+            complexSin(info_freq, info_count_of_samples));
+     PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
 
-    std::vector<std::complex<float>> modulated_carrier = vssdsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
-    std::vector<float> modulated_carrier_imag = vssdsp::projection::takeProjection(modulated_carrier, vssdsp::projection::type_of_projection::imaginary_projection);
-    std::vector<float> modulated_carrier_real = vssdsp::projection::takeProjection(modulated_carrier);
+     c_sig_t modulated_carrier = complexMagModulator(complex_carrier, mag_modulation, 0.5f);
+     s_sig_t modulated_carrier_imag = projection::takeProjection(modulated_carrier, projection::type_of_projection::imaginary_projection);
+     s_sig_t modulated_carrier_real = projection::takeProjection(modulated_carrier);
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
+     PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
+     PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
 
-    std::vector<std::complex<float>> modulated_carrier_wpo = vssdsp::complexPhaseChanger(modulated_carrier, 0.0f,
+     c_sig_t modulated_carrier_wpo = complexPhaseChanger(modulated_carrier, 0.0f,
                                                                                          phase_attenuation_per_sample_deg);
-    std::vector<float> modulated_carrier_wpo_real = vssdsp::projection::takeProjection(modulated_carrier_wpo);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier_wpo_real, "Амплитудно модулированный сигнал с ошибкой (Проекция действительной части)");
+     s_sig_t modulated_carrier_wpo_real = projection::takeProjection(modulated_carrier_wpo);
+     PlotConstructor::drawPlot(modulated_carrier_wpo_real, "Амплитудно модулированный сигнал с ошибкой (Проекция действительной части)");
 //
-    std::vector<std::complex<float>> modulated_carrier_wpo_fixed = vssdsp::complexPLL(modulated_carrier_wpo, freq);
-    std::vector<float> modulated_carrier_wpo_fixed_real = vssdsp::projection::takeProjection(modulated_carrier_wpo_fixed);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_real, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция действительной части)");
-    std::vector<float> modulated_carrier_wpo_fixed_imag = vssdsp::projection::takeProjection(modulated_carrier_wpo_fixed, vssdsp::projection::imaginary_projection);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_imag, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция мнимой части)");
+     c_sig_t modulated_carrier_wpo_fixed = complexPLL(modulated_carrier_wpo, freq);
+     s_sig_t modulated_carrier_wpo_fixed_real = projection::takeProjection(modulated_carrier_wpo_fixed);
+     PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_real, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция действительной части)");
+     s_sig_t modulated_carrier_wpo_fixed_imag = projection::takeProjection(modulated_carrier_wpo_fixed, projection::imaginary_projection);
+     PlotConstructor::drawPlot(modulated_carrier_wpo_fixed_imag, "Амплитудно модулированный сигнал с ошибкой, исправленной ФАПЧ(Проекция мнимой части)");
 
 
-    std::vector<float> mag_demodulation_result = vssdsp::complexMagDemodulator(modulated_carrier_wpo_fixed);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(mag_demodulation_result, "Информационный сигнал из демодулятора");
+     s_sig_t mag_demodulation_result = complexMagDemodulator(modulated_carrier_wpo_fixed);
+     PlotConstructor::drawPlot(mag_demodulation_result, "Информационный сигнал из демодулятора");
 
-    std::cout << "Correlation " << std::norm(vssdsp::complexSequenceCorrelation(modulated_carrier_wpo_fixed, modulated_carrier)) << std::endl;
+    std::cout << "Correlation " << std::norm(complexSequenceCorrelation(modulated_carrier_wpo_fixed, modulated_carrier)) << std::endl;
 }
 
 
@@ -208,15 +211,15 @@ TEST(complex_functions, BPSK_Modulation){
         }
     }
 
-    std::vector<std::complex<float>> bpsk_modulated = vssdsp::complexBPSKModulator(info_signal, 100);
-    std::vector<float> bpsk_modulated_real = vssdsp::projection::takeProjection(bpsk_modulated);
-    std::vector<float> bpsk_modulated_imag = vssdsp::projection::takeProjection(bpsk_modulated,
-                                                                                     vssdsp::projection::type_of_projection::imaginary_projection);
+     c_sig_t bpsk_modulated = complexBPSKModulator(info_signal, 100);
+     s_sig_t bpsk_modulated_real = projection::takeProjection(bpsk_modulated);
+     s_sig_t bpsk_modulated_imag = projection::takeProjection(bpsk_modulated,
+                                                                                     projection::type_of_projection::imaginary_projection);
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_modulated, "BPSK модулированный сигнал");
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(vssdsp::complexSignalPhaseDependence(bpsk_modulated), "Зависимость фазы");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
+     PlotConstructor::drawPlot(bpsk_modulated, "BPSK модулированный сигнал");
+//     PlotConstructor::drawPlot(complexSignalPhaseDependence(bpsk_modulated), "Зависимость фазы");
+     PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
+     PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
 
     for(auto e : info_signal){
         std::cout << e << "\t";
@@ -251,46 +254,46 @@ TEST(complex_functions, BPSK_with_PLL){
 //    auto count_of_samples = 1000;
     auto phase_attenuation_per_sample_deg = -0.003f;
 
-//    std::vector<std::complex<float>> complex_carrier = vssdsp::complexSin(freq, count_of_samples, -90);
-//    std::vector<float> complex_carrier_real = vssdsp::projection::takeProjection(complex_carrier,
-//                                                                                      vssdsp::projection::type_of_projection::real_projection);
+//     c_sig_t complex_carrier = complexSin(freq, count_of_samples, -90);
+//     s_sig_t complex_carrier_real = projection::takeProjection(complex_carrier,
+//                                                                                      projection::type_of_projection::real_projection);
 //
-//    std::vector<float> complex_carrier_imag = vssdsp::projection::takeProjection(complex_carrier,
-//                                                                                      vssdsp::projection::type_of_projection::imaginary_projection);
+//     s_sig_t complex_carrier_imag = projection::takeProjection(complex_carrier,
+//                                                                                      projection::type_of_projection::imaginary_projection);
 
-    std::vector<std::complex<float>> bpsk_modulated = vssdsp::complexBPSKModulator(info_signal, 200);
-    std::vector<float> bpsk_modulated_real = vssdsp::projection::takeProjection(bpsk_modulated,
-                                                                                vssdsp::projection::type_of_projection::real_projection);
+     c_sig_t bpsk_modulated = complexBPSKModulator(info_signal, 200);
+     s_sig_t bpsk_modulated_real = projection::takeProjection(bpsk_modulated,
+                                                                                projection::type_of_projection::real_projection);
 
-    std::vector<float> bpsk_modulated_imag = vssdsp::projection::takeProjection(bpsk_modulated,
-                                                                                vssdsp::projection::type_of_projection::imaginary_projection);
+     s_sig_t bpsk_modulated_imag = projection::takeProjection(bpsk_modulated,
+                                                                                projection::type_of_projection::imaginary_projection);
 
-    std::vector<std::complex<float>> bpsk_modulated_wpo = vssdsp::complexPhaseChanger(bpsk_modulated, 0.0f,
+     c_sig_t bpsk_modulated_wpo = complexPhaseChanger(bpsk_modulated, 0.0f,
                                                                                       phase_attenuation_per_sample_deg);
 
-    std::vector<float> bpsk_modulated_wpo_real = vssdsp::projection::takeProjection(bpsk_modulated_wpo,
-                                                                                    vssdsp::projection::type_of_projection::real_projection);
+     s_sig_t bpsk_modulated_wpo_real = projection::takeProjection(bpsk_modulated_wpo,
+                                                                                    projection::type_of_projection::real_projection);
 
-    std::vector<std::complex<float>> bpsk_modulated_wpo_fixed = vssdsp::complexPLL(bpsk_modulated_wpo, freq);
+     c_sig_t bpsk_modulated_wpo_fixed = complexPLL(bpsk_modulated_wpo, freq);
 
-    std::vector<float> bpsk_modulated_wpo_fixed_real = vssdsp::projection::takeProjection(bpsk_modulated_wpo_fixed,
-                                                                                          vssdsp::projection::type_of_projection::real_projection);
+     s_sig_t bpsk_modulated_wpo_fixed_real = projection::takeProjection(bpsk_modulated_wpo_fixed,
+                                                                                          projection::type_of_projection::real_projection);
 
-//    std::vector<float> bpsk_phase_function = vssdsp::complexSignalPhaseDependence(bpsk_modulated);
+//     s_sig_t bpsk_phase_function = complexSignalPhaseDependence(bpsk_modulated);
 
 
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Действительная часть)");
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(complex_carrier_imag, "Несущий сигнал (Мнимая часть)");
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(vssdsp::complexSignalPhaseDependence(complex_carrier), "Изменение фазы в несущем сигнале");
+//     PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Действительная часть)");
+//     PlotConstructor::drawPlot(complex_carrier_imag, "Несущий сигнал (Мнимая часть)");
+//     PlotConstructor::drawPlot(complexSignalPhaseDependence(complex_carrier), "Изменение фазы в несущем сигнале");
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_phase_function, "Изменение фазы в BPSK сигнале");
+     PlotConstructor::drawPlot(bpsk_modulated_real, "BPSK модулированный сигнал (Действительная часть)");
+//     PlotConstructor::drawPlot(bpsk_modulated_imag, "BPSK модулированный сигнал (Мнимая часть)");
+//     PlotConstructor::drawPlot(bpsk_phase_function, "Изменение фазы в BPSK сигнале");
 //
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
+     PlotConstructor::drawPlot(bpsk_modulated_wpo_real, "BPSK модулированный сигнал с ошибкой");
+     PlotConstructor::drawPlot(bpsk_modulated_wpo_fixed_real, "BPSK модулированный сигнал с исправленной ошибкой");
 
-    std::cout << std::norm(vssdsp::complexSequenceCorrelation(bpsk_modulated, bpsk_modulated_wpo_fixed));
+    std::cout << std::norm(complexSequenceCorrelation(bpsk_modulated, bpsk_modulated_wpo_fixed));
 }
 
 TEST(transform, FFT){
@@ -298,24 +301,24 @@ TEST(transform, FFT){
     auto count_of_samples = 2000;
     auto freq = 10.0f;
 
-    vssdsp::s_sig_t impulse = vssdsp::MeanderGen(freq, count_of_samples, 0, true);
-//    vssdsp::c_sig_t impulse_comp  = vssdsp::complexSin(freq, count_of_samples, 0);
-//    vssdsp::s_sig_t impulseMod = vssdsp::projection::takeProjection(vssdsp::complexSin(freq/4, count_of_samples, 0));
-//    impulse_comp = vssdsp::complexMagModulator(impulse_comp, impulseMod);
-//    vssdsp::s_sig_t impulse = vssdsp::projection::takeProjection(impulse_comp);
+    s_sig_t impulse = MeanderGen(freq, count_of_samples, 0, true);
+//    c_sig_t impulse_comp  = complexSin(freq, count_of_samples, 0);
+//    s_sig_t impulseMod = projection::takeProjection(complexSin(freq/4, count_of_samples, 0));
+//    impulse_comp = complexMagModulator(impulse_comp, impulseMod);
+//    s_sig_t impulse = projection::takeProjection(impulse_comp);
 
 
-    vssdsp::c_sig_t FFT_analysis_result;
+    c_sig_t FFT_analysis_result;
     FFT_analysis_result.reserve(count_of_samples);
-    FFT_analysis_result = vssdsp::forwardFFT(vssdsp::quadro_cast(impulse));
+    FFT_analysis_result = forwardFFT(quadro_cast(impulse));
 
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(impulse, "Меандр");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
+     PlotConstructor::drawPlot(impulse, "Меандр");
+     PlotConstructor::drawPlot(FFT_analysis_result, "Спектр сигнала");
 
-    FFT_analysis_result = vssdsp::backwardFFT(FFT_analysis_result);
+    FFT_analysis_result = backwardFFT(FFT_analysis_result);
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(FFT_analysis_result, "Опять сигнал");
+     PlotConstructor::drawPlot(FFT_analysis_result, "Опять сигнал");
 
 
 }
@@ -325,11 +328,11 @@ TEST(transform, specturm_plots){
     auto freq = 4.0f;
     auto count_of_samples = 2000;
 
-    vssdsp::c_sig_t Sine = vssdsp::complexSin(freq, count_of_samples);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(Sine, "Исходный сигнал");
+    c_sig_t Sine = complexSin(freq, count_of_samples);
+     PlotConstructor::drawPlot(Sine, "Исходный сигнал");
 
-    auto Rotated_sine = vssdsp::forwardFFT(Sine);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(vssdsp::projection::takeProjection(Rotated_sine, vssdsp::projection::imaginary_projection),
+    auto Rotated_sine = forwardFFT(Sine);
+     PlotConstructor::drawPlot(projection::takeProjection(Rotated_sine, projection::imaginary_projection),
                                                               "Повёрнутый сигнал");
 }
 
@@ -338,11 +341,11 @@ TEST(transform, hilbert_transform){
     const auto freq = 4.0f;
     const auto count_of_samples = 4000;
 
-    vssdsp::s_sig_t Sine = vssdsp::projection::takeProjection(vssdsp::complexSin(freq, count_of_samples, 0));
-    vssdsp::s_sig_t Hilberted = vssdsp::transformHilbert(Sine);
+    s_sig_t Sine = projection::takeProjection(complexSin(freq, count_of_samples, 0));
+    s_sig_t Hilberted = transformHilbert(Sine);
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(Sine, "Source sine");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(Hilberted, "Hilbert transformed sine");
+     PlotConstructor::drawPlot(Sine, "Source sine");
+     PlotConstructor::drawPlot(Hilberted, "Hilbert transformed sine");
 
 }
 
@@ -351,13 +354,13 @@ TEST(transform, quadro_cast){
     const auto freq = 4.0f;
     const auto count_of_samples = 4000;
 
-    vssdsp::c_sig_t Sine = vssdsp::complexSin(freq, count_of_samples, 0);
-    vssdsp::s_sig_t pSine = vssdsp::projection::takeProjection(Sine);
+    c_sig_t Sine = complexSin(freq, count_of_samples, 0);
+    s_sig_t pSine = projection::takeProjection(Sine);
 
-    vssdsp::c_sig_t CSine = vssdsp::quadro_cast(pSine);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(pSine, "Source sine complex");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(Sine, "Source sine projection");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(CSine, "Complex source sine");
+    c_sig_t CSine = quadro_cast(pSine);
+     PlotConstructor::drawPlot(pSine, "Source sine complex");
+     PlotConstructor::drawPlot(Sine, "Source sine projection");
+     PlotConstructor::drawPlot(CSine, "Complex source sine");
 }
 
 TEST(transform, fftw_speed_test){
@@ -365,13 +368,13 @@ TEST(transform, fftw_speed_test){
     constexpr auto freq = 16.0f;
     constexpr auto count_of_processing = 1000000;
 
-    vssdsp::c_sig_t FFT_analysis_result;
+    c_sig_t FFT_analysis_result;
     FFT_analysis_result.reserve(count_of_samples);
 
     auto forward_FFT =  fftwf_plan_dft_1d(count_of_samples, (fftwf_complex *)(FFT_analysis_result.data()),
                                           (fftwf_complex *)(FFT_analysis_result.data()), FFTW_FORWARD, FFTW_MEASURE);
 
-    for(auto e : vssdsp::MeanderGen(freq, count_of_samples, 0, true)){
+    for(auto e : MeanderGen(freq, count_of_samples, 0, true)){
         FFT_analysis_result.emplace_back(std::complex<float>{e, 0});
     }
 
@@ -392,11 +395,11 @@ TEST(transform, fftw_speed_test){
 
 TEST(generators, AWGN_generator){
 
-    vssdsp::s_sig_t noise = vssdsp::AWGN_generator(1000);
+    s_sig_t noise = AWGN_generator(1000);
 
-    vssdsp::c_sig_t  complex_noise = vssdsp::quadro_cast(vssdsp::AWGN_generator(1000));
+    c_sig_t  complex_noise = quadro_cast(AWGN_generator(1000));
 
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(complex_noise, "АГБШ");
+     PlotConstructor::drawPlot(complex_noise, "АГБШ");
 }
 
 TEST(complex_functions, CFO_search){
@@ -437,29 +440,28 @@ TEST(complex_functions, CFO_search){
     c_sig_t res_arr;
 
     phase_dependence = complexSignalPhaseDependence(arr);
-    phase_dependence = vssdsp::phaseDependenceLining(phase_dependence);
+    phase_dependence = phaseDependenceLining(phase_dependence);
 //        PlotConstructor::drawPlot(phase_dependence, "фаза в сигнале");
 
     diff_phase_dependence = differentiation(phase_dependence);
 //        PlotConstructor::drawPlot(diff_phase_dependence, "частота в сигнале");
 
     second_diff_phase_dependence = differentiation(diff_phase_dependence);
-        PlotConstructor::drawPlot(second_diff_phase_dependence, "рост частоты в сигнале");
+     PlotConstructor::drawPlot(second_diff_phase_dependence, "рост частоты в сигнале");
 
     std::cout << signalMedValue(second_diff_phase_dependence) << std::endl;
 }
 
 TEST(complex_functions, do_DC_offset_count) {
-
+    
     constexpr auto count_of_samples = 4096;
     constexpr auto freq = 8.0f;
 
     constexpr auto dc_offset = 2.0f;
 
-    vssdsp::s_sig_t sig = vssdsp::projection::takeProjection(vssdsp::complexSin(freq, count_of_samples));
-    sig = vssdsp::signalShelf(sig, dc_offset);
-
-    ASSERT_EQ(vssdsp::signalMedValue(sig), dc_offset);
+    s_sig_t sig = projection::takeProjection(complexSin(freq, count_of_samples));
+    sig = signalShelf(sig, dc_offset);
+    std::cout << dc_offset << '\t' << signalMedValue(sig) << std::endl;
 }
 
 TEST(complex_functions, heterodyne) {
@@ -470,39 +472,37 @@ TEST(complex_functions, heterodyne) {
 
     auto move_freq = 4.0f;
 
-    std::vector<std::complex<float>> complex_carrier = vssdsp::complexSin(freq, count_of_samples, 0);
-    std::vector<float> complex_carrier_real = vssdsp::projection::takeProjection(complex_carrier,
-                                                                                      vssdsp::projection::type_of_projection::real_projection);
-    std::vector<float> mag_modulation = vssdsp::projection::takeProjection(
-            vssdsp::complexSin(info_freq, info_count_of_samples, -90));
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
+     c_sig_t complex_carrier = complexSin(freq, count_of_samples, 0);
+     s_sig_t complex_carrier_real = projection::takeProjection(complex_carrier,
+                                                                                      projection::type_of_projection::real_projection);
+     s_sig_t mag_modulation = projection::takeProjection(
+            complexSin(info_freq, info_count_of_samples, -90));
+     PlotConstructor::drawPlot(mag_modulation, "Информационный сигнал");
 
-    std::vector<std::complex<float>> modulated_carrier = vssdsp::complexMagModulator(complex_carrier, mag_modulation, 0.5f);
-    std::vector<float> modulated_carrier_real = vssdsp::projection::takeProjection(modulated_carrier, vssdsp::projection::type_of_projection::imaginary_projection);
-    std::vector<float> modulated_carrier_imag = vssdsp::projection::takeProjection(modulated_carrier);
+     c_sig_t modulated_carrier = complexMagModulator(complex_carrier, mag_modulation, 0.5f);
+     s_sig_t modulated_carrier_real = projection::takeProjection(modulated_carrier, projection::type_of_projection::imaginary_projection);
+     s_sig_t modulated_carrier_imag = projection::takeProjection(modulated_carrier);
 
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Проекция действительной части)");
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier, "Амплитудно модулированный сигнал");
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
-//    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
+//     PlotConstructor::drawPlot(complex_carrier_real, "Несущий сигнал (Проекция действительной части)");
+//     PlotConstructor::drawPlot(modulated_carrier, "Амплитудно модулированный сигнал");
+     PlotConstructor::drawPlot(modulated_carrier_real, "Амплитудно модулированный сигнал (Проекция действительной части)");
+//     PlotConstructor::drawPlot(modulated_carrier_imag, "Амплитудно модулированный сигнал (Проекция мнимой части)");
 
-    vssdsp::c_sig_t het_sig = vssdsp::Heterodyne(move_freq, modulated_carrier, false);
-    std::vector<float> het_sig_real = vssdsp::projection::takeProjection(het_sig, vssdsp::projection::type_of_projection::imaginary_projection);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(het_sig_real, "Гетеродинированный Сигнал (Проекция действительной части)");
+    c_sig_t het_sig = Heterodyne(move_freq, modulated_carrier, false);
+     s_sig_t het_sig_real = projection::takeProjection(het_sig, projection::type_of_projection::imaginary_projection);
+     PlotConstructor::drawPlot(het_sig_real, "Гетеродинированный Сигнал (Проекция действительной части)");
 
-    auto demo_het_sig = vssdsp::complexMagDemodulator(het_sig);
-    if constexpr (DO_PLOTS) vssdsp::PlotConstructor::drawPlot(demo_het_sig, "Снятый с демодулятора сигнал от гетеродинированного сигнала");
+    auto demo_het_sig = complexMagDemodulator(het_sig);
+     PlotConstructor::drawPlot(demo_het_sig, "Снятый с демодулятора сигнал от гетеродинированного сигнала");
 
     std::cout
-    << std::norm(vssdsp::complexSequenceCorrelation(vssdsp::quadro_cast(demo_het_sig), vssdsp::quadro_cast(mag_modulation)))
+    << std::norm(complexSequenceCorrelation(quadro_cast(demo_het_sig), quadro_cast(mag_modulation)))
     << std::endl;
 }
 
 
 
 TEST(other, cutoff_compensation) {
-    using namespace vssdsp;
-    #define PlotConstructor if constexpr (DO_PLOTS) PlotConstructor
 
     constexpr auto count_of_samples = 10000;
     constexpr auto freq = 10.0f;
