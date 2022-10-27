@@ -1,6 +1,6 @@
 #pragma once
 
-namespace poddsp {
+namespace vssdsp {
 
 /// Вращение фазы сигнала против часовой стрелки + CFO gen
     std::vector<std::complex<float>> complexPhaseChanger(const std::vector<std::complex<float>> &incoming_arr,

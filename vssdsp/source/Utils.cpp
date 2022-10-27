@@ -1,7 +1,7 @@
 #include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     float complexVectorMagnitude(const std::complex<float> &sample) noexcept {
         float res;
@@ -165,7 +165,7 @@ namespace poddsp {
 
         fftwf_cleanup();
 
-        poddsp::s_sig_t res_arr; res_arr.reserve(count_of_samples);
+        vssdsp::s_sig_t res_arr; res_arr.reserve(count_of_samples);
         for(auto e : buff){
             res_arr.emplace_back(e.real());
         }
@@ -322,8 +322,8 @@ namespace poddsp {
         return res_arr;
     }
 
-    float findModeWithEps(const poddsp::s_sig_t& dep, float eps) noexcept {
-        using namespace poddsp;
+    float findModeWithEps(const vssdsp::s_sig_t& dep, float eps) noexcept {
+        using namespace vssdsp;
         std::vector<std::vector<float>> mode_st;
         auto top = signalMaxValue(dep);
         auto bot = signalMinValue(dep);
@@ -364,8 +364,8 @@ namespace poddsp {
 
     }
 
-    float findModeWithEps(const poddsp::c_sig_t& c_dep, float eps) noexcept {
-        using namespace poddsp;
+    float findModeWithEps(const vssdsp::c_sig_t& c_dep, float eps) noexcept {
+        using namespace vssdsp;
         auto dep = projection::takeProjection(c_dep);
         return findModeWithEps(dep, eps);
     }

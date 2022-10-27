@@ -2,7 +2,7 @@
 
 #include <liquid/liquid.h>
 
-namespace poddsp {
+namespace vssdsp {
     void complexSignalResampler(const std::vector<std::complex<float>> &,
                                 std::vector<std::complex<float>> &,
                                 const int &)

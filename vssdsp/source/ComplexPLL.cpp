@@ -1,7 +1,7 @@
 #include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
 /// ToDo Добавить Точность для сглаживания графиков частоты и фазы, для эффективной работы гетеродина
     std::vector<std::complex<float>> complexPLL(const std::vector<std::complex<float>> &incoming_samples,

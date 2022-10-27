@@ -1,7 +1,7 @@
 #include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     std::vector<std::complex<float>> complexSin(const float &freq,
                                                 const int &count_of_samples,

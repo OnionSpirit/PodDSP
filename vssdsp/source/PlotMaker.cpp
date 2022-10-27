@@ -1,7 +1,7 @@
 #include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     void PlotConstructor::drawComplexPlot(const std::vector<std::complex<float>> &data,
                                           const std::string &title,

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace poddsp{
+namespace vssdsp{
 
     std::vector<std::complex<float>> sequenceCentralizer(const std::vector<std::complex<float>> &) noexcept;
 

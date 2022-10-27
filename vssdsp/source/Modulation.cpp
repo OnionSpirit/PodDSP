@@ -1,7 +1,7 @@
 #include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     /// ToDo сделать нормальную квадратурную составляющую сигнала
     std::vector<std::complex<float>> complexMagModulator(const std::vector<std::complex<float>> & carrier_buffer,

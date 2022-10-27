@@ -1,6 +1,6 @@
 #pragma once
 
-namespace poddsp {
+namespace vssdsp {
 
     typedef std::vector<std::complex<float>> c_sig_t;
     typedef std::vector<float> s_sig_t;
@@ -89,9 +89,9 @@ namespace poddsp {
 
     s_sig_t lessThen(const s_sig_t&, float) noexcept;
 
-    float findModeWithEps(const poddsp::s_sig_t&, float =0.01f) noexcept;
+    float findModeWithEps(const vssdsp::s_sig_t&, float =0.01f) noexcept;
 
-    float findModeWithEps(const poddsp::c_sig_t&, float =0.01f) noexcept;
+    float findModeWithEps(const vssdsp::c_sig_t&, float =0.01f) noexcept;
 
     namespace projection {
 
@@ -102,7 +102,7 @@ namespace poddsp {
 
         /// Создание проекции трёхмерного графика на одну из плоскостей. Праметры:
         /// 1) Массив комплексных данных,
-        /// 2) Тип проекции согласно PodDSP::projection::type_of_projection, по умолчанию real_projection.
+        /// 2) Тип проекции согласно vssdsp::projection::type_of_projection, по умолчанию real_projection.
         std::vector<float> takeProjection(const std::vector<std::complex<float>> &,
                                                  const type_of_projection & = type_of_projection::real_projection);
     }

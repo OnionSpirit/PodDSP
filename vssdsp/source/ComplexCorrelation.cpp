@@ -1,7 +1,7 @@
 #include "../include/vssdsp.h"
 
 
-namespace poddsp {
+namespace vssdsp {
 
     std::vector<std::complex<float>> sequenceCentralizer(const std::vector<std::complex<float>> &sequence)
     noexcept {

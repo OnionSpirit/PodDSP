@@ -1,6 +1,6 @@
 #pragma once
 
-namespace poddsp {
+namespace vssdsp {
 
     std::vector<std::complex<float>> complexCFOCompensator(const std::vector<std::complex<float>> &,
                                                            const float &)
