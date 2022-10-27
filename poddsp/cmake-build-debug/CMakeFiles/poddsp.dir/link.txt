@@ -1,2 +1,0 @@
-/usr/bin/ar qc libpoddsp.a CMakeFiles/poddsp.dir/source/ComplexCorrelation.cpp.o CMakeFiles/poddsp.dir/source/ComplexPLL.cpp.o CMakeFiles/poddsp.dir/source/ComplexSignalGenerator.cpp.o CMakeFiles/poddsp.dir/source/Modulation.cpp.o CMakeFiles/poddsp.dir/source/Phase.cpp.o CMakeFiles/poddsp.dir/source/PlotMaker.cpp.o CMakeFiles/poddsp.dir/source/Resampler.cpp.o
-/usr/bin/ranlib libpoddsp.a
