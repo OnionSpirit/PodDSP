@@ -4,9 +4,9 @@
 #include <vssdsp.h>
 
 #define RANDOM_NUMBER 1 + rand()%10
-#define DO_PLOTS false
-#define PlotConstructor  if constexpr (DO_PLOTS) PlotConstructor
+#define PlotConstructor  if (DO_PLOTS) PlotConstructor
 
+const auto DO_PLOTS = false;
 using namespace vssdsp;
 
 
@@ -506,18 +506,21 @@ TEST(other, cutoff_compensation) {
 
     constexpr auto count_of_samples = 10000;
     constexpr auto freq = 10.0f;
-    constexpr auto SigMag = 1.9f;
-    constexpr auto NsMag = 0.8f;
-    constexpr auto CutLvl = 1.5f;
+    constexpr auto SigMag = 1.3f;
+    constexpr auto NsMag = 0.0f;
+    constexpr auto CutLvl = 1.0f;
 
+    /// Signal gen
     c_sig_t complex_signal = complexSin(freq, count_of_samples);
     complex_signal = amplifier(complex_signal, SigMag);
     PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Original Sin");
 
+    /// Noise gen
     auto noise = AWGN_generator(count_of_samples);
     noise = amplifier(noise, NsMag);
     PlotConstructor::drawPlot(noise, "Noise");
 
+    /// Noising
     for(int i =0; auto &e : complex_signal) {
         auto n_s = noise[i];
         e.real(e.real() + n_s);
@@ -525,28 +528,16 @@ TEST(other, cutoff_compensation) {
         i++;
     }
 
+    /// Calculating Signal Original Magnitude
     PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Noised Sin");
-
     complex_signal = cutoff(complex_signal, CutLvl);
-    auto max_taken_val = signalMaxValue(projection::takeProjection(complex_signal));
     PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Cut Sin");
-
-    s_sig_t mags;
-    for(auto &e : complex_signal) {
-        mags.emplace_back(complexVectorMagnitude(e));
-    }
-    mags = smoother(mags);
-    auto eps = 1.0f/(20.0f * signalMaxValue(mags) * dispersion(mags)); /*eps = 0.01f;*/
-    auto mags_interm = s_sig_t();
-    for (float & mag : mags) {
-        if (mag < (max_taken_val + 10.0f*eps)) {
-            continue;
-        }
-        mags_interm.emplace_back(mag);
-    } mags = mags_interm;
-    std::cout << "Eps: " << eps << std::endl;
-    std::cout << "Magnitude is: " << findModeWithEps(mags, eps) << std::endl;
-    std::cout << "SNR: " << 20 * logf(SigMag / NsMag) << std::endl;
-    std::cout << "Mag cut percent: " << ((SigMag - CutLvl) / SigMag)*100 << "%" << std::endl;
-    PlotConstructor::drawPlot(mags, "Samples Mags");
+    auto MagFind = OriginalMagnitudeFind(complex_signal);
+    std::cout << "Magnitude is: " << MagFind << std::endl;
+    std::cout << "SNR is: " << 20*logf(SigMag / NsMag) << std::endl;
+    std::cout << "magnitude cut percent: " << ((SigMag - CutLvl) / SigMag) * 100 << "%" << std::endl;
+    std::cout << "Error percent: " << (fabsf(SigMag - MagFind) / SigMag) * 100 << "%" << std::endl;
+//    for(auto& e : complex_signal) {
+//
+//    }
 }

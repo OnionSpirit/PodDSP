@@ -93,6 +93,8 @@ namespace vssdsp {
 
     float findModeWithEps(const vssdsp::c_sig_t&, float =0.01f) noexcept;
 
+    float OriginalMagnitudeFind(const c_sig_t &) noexcept;
+
     namespace projection {
 
         enum type_of_projection {
