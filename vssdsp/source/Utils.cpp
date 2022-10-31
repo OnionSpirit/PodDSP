@@ -322,15 +322,15 @@ namespace vssdsp {
         return res_arr;
     }
 
-    float findModeWithEps(const vssdsp::s_sig_t& dep, float eps) noexcept {
+    float findMode(const vssdsp::s_sig_t& dep) noexcept {
         using namespace vssdsp;
 
         std::vector<std::vector<float>> mode_st; mode_st.resize(10);
         auto top = signalMaxValue(dep);
         auto bot = signalMinValue(dep);
         auto lvl_range = top - bot;
-        eps = lvl_range / 20.0f; top -= eps;
-        for ( int i =0; i < 10 and top > bot; i++ ) {
+        auto eps = lvl_range / 20.0f; top -= eps;
+        for ( int i =0; i < 7 and top > bot; i++ ) {
             for ( int j =0; j < dep.size(); j++ ) {
                 auto el = dep[j];
                 if ( (el >= (top - eps)) and (el <= (top + eps)) ) {
@@ -355,7 +355,7 @@ namespace vssdsp {
                 }
             }
         }
-        if ( not mode_st.empty() and not mode_st[longest_id].empty()) {
+        if ( not mode_st[longest_id].empty()) {
             s_sig_t res;
             auto exp_v = signalMedValue(mode_st[longest_id]);
             auto st_d = 1.0f/sqrt(2.0f * M_PI * dispersion(mode_st[longest_id]));
@@ -367,58 +367,18 @@ namespace vssdsp {
             if(res.empty()) {
                 return exp_v;
             } else {
-                std::cout << "Got St arr" << std::endl;
                 return signalMedValue(res);
             }
         } else {
             return signalMaxValue(dep);
         }
-
-//        std::vector<std::vector<float>> mode_st;
-//        auto top = signalMaxValue(dep);
-//        auto bot = signalMinValue(dep);
-//        auto lvl_range = top - bot;
-//        size_t iteration_count = 0;
-//        if ( 0.0f != eps ) iteration_count = (size_t)(lvl_range / eps);
-//        else return 0.0f;
-//        mode_st.resize(iteration_count);
-//        for ( int i =0; i < iteration_count and top > bot; i++ ) {
-//            for ( int j =0; j < dep.size(); j++ ) {
-//                auto el = dep[j];
-//                if ( (el >= (top - eps)) and (el <= (top + eps)) ) {
-//                    mode_st[i].emplace_back(el);
-//                }
-//            }
-//            top -= 2*eps;
-//        }
-//        size_t longest_id =0;
-//        size_t max_len =0;
-//        for ( int i =0; i < mode_st.size(); i++ ) {
-//            auto id_len = mode_st[i].size();
-//            if(id_len > max_len) {
-//                max_len = id_len;
-//                longest_id = i;
-//            }
-//            if ( id_len == max_len ) {
-//                if ( signalMedValue(mode_st[i]) > signalMedValue(mode_st[longest_id]) ) {
-//                    max_len = id_len;
-//                    longest_id = i;
-//                }
-//            }
-//        }
-//        if ( not mode_st.empty() and not mode_st[longest_id].empty()) {
-//            return signalMedValue(mode_st[longest_id]);
-//        } else {
-//            return signalMaxValue(dep);
-//        }
-
     }
 
-    float findModeWithEps(const vssdsp::c_sig_t& c_dep, float eps) noexcept {
+    float findMode(const vssdsp::c_sig_t& c_dep) noexcept {
 
         using namespace vssdsp;
         auto dep = projection::takeProjection(c_dep);
-        return findModeWithEps(dep, eps);
+        return findMode(dep);
     }
 
     /// Поиск настоящей амплитуды сигнала обрезанного границами уровня канала.
@@ -432,16 +392,17 @@ namespace vssdsp {
             mags.emplace_back(complexVectorMagnitude(e));
         }
         mags = smoother(mags);
-        auto eps = 1.0f/(2.0f * signalMaxValue(mags) * dispersion(mags)); /*eps = 0.01f;*/
+        auto top = signalMaxValue(mags), bot = signalMinValue(mags);
+        auto eps = (top - bot)/10.0f; /*eps = 0.01f;*/
         auto mags_interm = s_sig_t();
         for (float & mag : mags) {
-            if (mag <= 1.0f) {
+            if (mag <= (bot + 3.0f * eps)) {
                 continue;
             }
             mags_interm.emplace_back(mag);
         } mags = mags_interm;
 
-        return findModeWithEps(mags, eps);
+        return findMode(mags);
     }
 
     namespace projection {

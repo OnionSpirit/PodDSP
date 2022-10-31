@@ -504,11 +504,11 @@ TEST(complex_functions, heterodyne) {
 
 TEST(other, cutoff_compensation) {
 
-    constexpr auto count_of_samples = 10000;
-    constexpr auto freq = 10.0f;
-    constexpr auto SigMag = 1.3f;
-    constexpr auto NsMag = 0.0f;
-    constexpr auto CutLvl = 1.0f;
+    constexpr auto count_of_samples = 100;
+    constexpr auto freq = 1.0f;
+    constexpr auto SigMag = 1.20f;
+    constexpr auto NsMag = 0.2f;
+    constexpr auto CutLvl = 1.00f;
 
     /// Signal gen
     c_sig_t complex_signal = complexSin(freq, count_of_samples);
@@ -534,10 +534,7 @@ TEST(other, cutoff_compensation) {
     PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Cut Sin");
     auto MagFind = OriginalMagnitudeFind(complex_signal);
     std::cout << "Magnitude is: " << MagFind << std::endl;
-    std::cout << "SNR is: " << 20*logf(SigMag / NsMag) << std::endl;
+    std::cout << "SNR is: " << (SigMag / NsMag) << std::endl;
     std::cout << "magnitude cut percent: " << ((SigMag - CutLvl) / SigMag) * 100 << "%" << std::endl;
     std::cout << "Error percent: " << (fabsf(SigMag - MagFind) / SigMag) * 100 << "%" << std::endl;
-//    for(auto& e : complex_signal) {
-//
-//    }
 }

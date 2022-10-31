@@ -89,9 +89,9 @@ namespace vssdsp {
 
     s_sig_t lessThen(const s_sig_t&, float) noexcept;
 
-    float findModeWithEps(const vssdsp::s_sig_t&, float =0.01f) noexcept;
+    float findMode(const vssdsp::s_sig_t&) noexcept;
 
-    float findModeWithEps(const vssdsp::c_sig_t&, float =0.01f) noexcept;
+    float findMode(const vssdsp::c_sig_t&) noexcept;
 
     float OriginalMagnitudeFind(const c_sig_t &) noexcept;
 
