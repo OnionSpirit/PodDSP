@@ -184,17 +184,39 @@ namespace vssdsp {
         return res_arr;
     }
 
-    s_sig_t smoother(const s_sig_t& sig) noexcept {
-        auto res = sig;
-        if (sig.empty()) return res;
+    s_sig_t smooth(const s_sig_t& input, size_t window =-1) noexcept {
+        if(window == -1) window = (size_t)((float)input.size()/20.0f);
 
-        for (int i =0; i < sig.size(); i++) {
-            if (i > 0 and i+1 < sig.size() and sig[i-1] < sig[i] and sig[i+1] < sig[i]) {
-                res[i] = (sig[i-1] + sig[i+1])/2;
+        auto n = input.size();
+        s_sig_t output; output.resize(n);
+        int i, j, z, k1, k2, hw;
+        double tmp;
+        if (fmod(window, 2) == 0) window++;
+        hw = (window - 1) / 2;
+        output[0] = input[0];
+
+        for (i = 1; i < n; i++) {
+            tmp = 0;
+            if (i < hw) {
+                k1 = 0;
+                k2 = 2 * i;
+                z = k2 + 1;
+            } else if ((i + hw) > (n - 1)) {
+                k1 = i - n + i + 1;
+                k2 = n - 1;
+                z = k2 - k1 + 1;
+            } else {
+                k1 = i - hw;
+                k2 = i + hw;
+                z = window;
             }
-        }
 
-        return res;
+            for (j = k1; j <= k2; j++) {
+                tmp = tmp + input[j];
+            }
+            output[i] = tmp / z;
+        }
+        return output;
     }
 
     c_sig_t cutoff(const c_sig_t& sig, float lvl) noexcept {
@@ -279,46 +301,17 @@ namespace vssdsp {
         return res;
     }
 
-    std::vector<float> AWGN_generator(size_t len) noexcept {
+    s_sig_t genAWGN(size_t len, float mag) noexcept {
 
-        double temp1;
-        double temp2;
-        double result;
-        int p;
+        s_sig_t res_arr; res_arr.resize(len);
 
-        std::vector<float> res_arr;
-        res_arr.reserve(len);
+        std::random_device rd{};
+        std::mt19937 gen{rd()};
 
-
-        srand(time(0));
-        for(int i = 0; i < len; i++){
-            p = 1;
-
-            while (p > 0) {
-                temp2 = (rand() / ((double) RAND_MAX));
-
-                if (temp2 == 0) p = 1;
-                else p = -1;
-
-            }
-
-            temp1 = cos((2.0 * (double) M_PI) * rand() / ((double) RAND_MAX));
-            result = sqrt(-2.0 * log(temp2)) * temp1;
-
-            res_arr.emplace_back(result);
-            usleep(100);
+        std::normal_distribution<float> gss(0, mag);
+        for(auto &e : res_arr) {
+            e += gss(gen);
         }
-
-        {/// Нормировка
-            float max_val = 0.0f;
-            for (auto e: res_arr) {
-                if (e > max_val) max_val = e;
-            }
-            for (auto &e: res_arr) {
-                e /= max_val;
-            }
-        }
-
         return res_arr;
     }
 
@@ -326,11 +319,12 @@ namespace vssdsp {
         using namespace vssdsp;
 
         std::vector<std::vector<float>> mode_st; mode_st.resize(10);
+        float Mode = 0.0f;
         auto top = signalMaxValue(dep);
         auto bot = signalMinValue(dep);
         auto lvl_range = top - bot;
         auto eps = lvl_range / 20.0f; top -= eps;
-        for ( int i =0; i < 7 and top > bot; i++ ) {
+        for ( int i =0; i < 10 and top > bot; i++ ) {
             for ( int j =0; j < dep.size(); j++ ) {
                 auto el = dep[j];
                 if ( (el >= (top - eps)) and (el <= (top + eps)) ) {
@@ -358,20 +352,21 @@ namespace vssdsp {
         if ( not mode_st[longest_id].empty()) {
             s_sig_t res;
             auto exp_v = signalMedValue(mode_st[longest_id]);
-            auto st_d = 1.0f/sqrt(2.0f * M_PI * dispersion(mode_st[longest_id]));
+            auto st_d = sqrtf(dispersion(mode_st[longest_id]));
             for(auto& e : mode_st[longest_id]) {
                 if((e >= exp_v - st_d) and e <= (exp_v + st_d)) {
                     res.emplace_back(e);
                 }
             }
             if(res.empty()) {
-                return exp_v;
+                Mode = exp_v;
             } else {
-                return signalMedValue(res);
+                Mode = signalMedValue(res);
             }
         } else {
-            return signalMaxValue(dep);
+            Mode = signalMaxValue(dep);
         }
+        return Mode;
     }
 
     float findMode(const vssdsp::c_sig_t& c_dep) noexcept {
@@ -381,28 +376,57 @@ namespace vssdsp {
         return findMode(dep);
     }
 
+    std::vector<size_t> topIds(const s_sig_t& dep, size_t win) noexcept {
+        if(win == -1) win = (size_t)((float)dep.size()/20.0f);
+        auto diff = smooth(differentiation(dep), win);
+        std::vector<size_t> top_ids;
+        for (int i =0; i < diff.size(); i++) {
+            if (i-1 >= 0 and diff[i] <= 0 and diff[i-1] > 0) {
+                top_ids.emplace_back(i);
+            }
+        }
+        return top_ids;
+    }
+
+    std::vector<size_t> botIds(const s_sig_t& dep, size_t win) noexcept {
+        if(win == -1) win = (size_t)((float)dep.size()/20.0f);
+        auto diff = smooth(differentiation(dep), win);
+        std::vector<size_t> bot_ids;
+        for (int i =0; i < diff.size(); i++) {
+            if (i-1 >= 0 and diff[i] >= 0 and diff[i-1] < 0) {
+                bot_ids.emplace_back(i);
+            }
+        }
+        return bot_ids;
+    }
+
     /// Поиск настоящей амплитуды сигнала обрезанного границами уровня канала.
     /// Параметры: 1) Массив отсчётов комплексного сигнала.
     /// (!!!) Не может рассчитать амплитуду корректно, если обрезано более четверти амплитуды.
     /// Среднее значения допустимого SNR - 30 Db.
-    float OriginalMagnitudeFind(const c_sig_t& complex_signal) noexcept {
+    float OriginalMagnitudeFind(const c_sig_t& complex_signal, size_t win) noexcept {
 
         s_sig_t mags;
         for(auto &e : complex_signal) {
             mags.emplace_back(complexVectorMagnitude(e));
         }
-        mags = smoother(mags);
         auto top = signalMaxValue(mags), bot = signalMinValue(mags);
-        auto eps = (top - bot)/10.0f; /*eps = 0.01f;*/
+        auto eps = (top - bot)/10.0f;
         auto mags_interm = s_sig_t();
+        if(win == -1) win = (size_t)((float)mags.size() / 20.0f);
         for (float & mag : mags) {
             if (mag <= (bot + 3.0f * eps)) {
                 continue;
             }
             mags_interm.emplace_back(mag);
         } mags = mags_interm;
+        mags = smooth(mags,win);
 
-        return findMode(mags);
+        s_sig_t tops;
+        for(auto top_id : topIds(mags, win)) {
+            tops.emplace_back(mags[top_id]);
+        }
+        return signalMedValue(tops);
     }
 
     namespace projection {

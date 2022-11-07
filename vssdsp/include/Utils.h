@@ -73,9 +73,9 @@ namespace vssdsp {
 
     std::vector<std::complex<float>> quadro_cast(const std::vector<float> &) noexcept;
 
-    std::vector<float> AWGN_generator(size_t len) noexcept;
+    s_sig_t genAWGN(size_t len, float mag) noexcept;
 
-    s_sig_t smoother(const s_sig_t&) noexcept;
+    s_sig_t smooth(const s_sig_t&, size_t) noexcept;
 
     c_sig_t cutoff(const c_sig_t&, float) noexcept;
 
@@ -93,7 +93,11 @@ namespace vssdsp {
 
     float findMode(const vssdsp::c_sig_t&) noexcept;
 
-    float OriginalMagnitudeFind(const c_sig_t &) noexcept;
+    float OriginalMagnitudeFind(const c_sig_t &, size_t =-1) noexcept;
+
+    std::vector<size_t> topIds(const s_sig_t&, size_t =-1) noexcept;
+
+    std::vector<size_t> botIds(const s_sig_t&, size_t =-1) noexcept;
 
     namespace projection {
 

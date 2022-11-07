@@ -6,7 +6,7 @@
 #define RANDOM_NUMBER 1 + rand()%10
 #define PlotConstructor  if (DO_PLOTS) PlotConstructor
 
-const auto DO_PLOTS = false;
+const auto DO_PLOTS = true;
 using namespace vssdsp;
 
 
@@ -393,13 +393,10 @@ TEST(transform, fftw_speed_test){
     std::cout << "Total time in seconds: " << static_cast<float>(total_time) / 1000000.0f << std::endl;
 }
 
-TEST(generators, AWGN_generator){
+TEST(generators, genAWGN){
 
-    s_sig_t noise = AWGN_generator(1000);
-
-    c_sig_t  complex_noise = quadro_cast(AWGN_generator(1000));
-
-     PlotConstructor::drawPlot(complex_noise, "АГБШ");
+    s_sig_t noise = genAWGN(1000, 5);
+     PlotConstructor::drawPlot(noise, "АГБШ");
 }
 
 TEST(complex_functions, CFO_search){
@@ -502,39 +499,122 @@ TEST(complex_functions, heterodyne) {
 
 
 
-TEST(other, cutoff_compensation) {
+TEST(other, cutoff_compensation_win_size_dep) {
+
+
+    clock_t start, end;
+    start = std::clock();
+    std::ios_base::sync_with_stdio(false);
 
     constexpr auto count_of_samples = 100;
     constexpr auto freq = 1.0f;
-    constexpr auto SigMag = 1.20f;
-    constexpr auto NsMag = 0.2f;
+    constexpr auto SigMag = 1.2f;
+    auto NsMag = 0.12f;
     constexpr auto CutLvl = 1.00f;
+    constexpr auto try_count = 3000;
+    constexpr auto err_bound = 3.0f;
 
-    /// Signal gen
-    c_sig_t complex_signal = complexSin(freq, count_of_samples);
-    complex_signal = amplifier(complex_signal, SigMag);
-    PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Original Sin");
+    s_sig_t succ; succ.reserve(count_of_samples);
+    for(int k =0; k < count_of_samples; k++) {
+        s_sig_t Mags; Mags.reserve(try_count);
+        size_t succ_count = 0;
+        for (int j = 0; j < try_count; j++) {
 
-    /// Noise gen
-    auto noise = AWGN_generator(count_of_samples);
-    noise = amplifier(noise, NsMag);
-    PlotConstructor::drawPlot(noise, "Noise");
+            /// Signal gen
+            c_sig_t complex_signal = complexSin(freq, count_of_samples);
+            complex_signal = amplifier(complex_signal, SigMag);
+//            PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Original Sin");
 
-    /// Noising
-    for(int i =0; auto &e : complex_signal) {
-        auto n_s = noise[i];
-        e.real(e.real() + n_s);
-        e.imag(e.imag() + n_s);
-        i++;
+            /// Noise gen
+            auto noise = genAWGN(count_of_samples, NsMag);
+
+            /// Noising
+            for (int i = 0; auto &e: complex_signal) {
+                auto n_s = noise[i];
+                e.real(e.real() + n_s);
+                e.imag(e.imag() + n_s);
+                i++;
+            }
+
+
+            /// Calculating Signal Original Magnitude
+//            PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Noised Sin");
+            complex_signal = cutoff(complex_signal, CutLvl);
+//            PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Cut Sin");
+            Mags.emplace_back(OriginalMagnitudeFind(complex_signal, k));
+//            Mags.emplace_back(OriginalMagnitudeFind(complex_signal, complex_signal.size()/20));
+
+            auto err_prs = (fabsf(SigMag - Mags.back()) / SigMag) * 100;
+//            std::cout << "Error value: " << err_prs << "%" << std::endl;
+            if (err_prs < err_bound) succ_count++;
+        }
+        succ.emplace_back(succ_count);
+        auto MagFind = signalMedValue(Mags);
+        std::cout << "Moving window size: " << k << std::endl;
+        std::cout << "Magnitude is: " << MagFind << std::endl;
+        std::cout << "SNR is: " << 20.0f * logf(SigMag / NsMag) << std::endl;
+        std::cout << "magnitude cut percent: " << ((SigMag - CutLvl) / SigMag) * 100 << "%" << std::endl;
+        std::cout << "Success percent, with accuracy = " << err_bound << "%" << " : "
+                  << ((float) succ_count / (float) try_count) * 100 << "%" << std::endl;
     }
+    PlotConstructor::drawPlot(amplifier(succ, (1.0f/try_count) * 100.0f), "Success via window size and sample count = " + std::to_string(count_of_samples));
+    end = std::clock();
+    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+    std::cout << '\n' << "Time taken by test is : " << std::fixed
+              << time_taken << std::setprecision(5);
+    std::cout << " sec ";
+}
 
-    /// Calculating Signal Original Magnitude
-    PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Noised Sin");
-    complex_signal = cutoff(complex_signal, CutLvl);
-    PlotConstructor::drawPlot(projection::takeProjection(complex_signal), "Cut Sin");
-    auto MagFind = OriginalMagnitudeFind(complex_signal);
-    std::cout << "Magnitude is: " << MagFind << std::endl;
-    std::cout << "SNR is: " << (SigMag / NsMag) << std::endl;
-    std::cout << "magnitude cut percent: " << ((SigMag - CutLvl) / SigMag) * 100 << "%" << std::endl;
-    std::cout << "Error percent: " << (fabsf(SigMag - MagFind) / SigMag) * 100 << "%" << std::endl;
+TEST(other, cutoff_compensation_SNR_dep) {
+
+    constexpr auto count_of_samples = 100;
+    constexpr auto freq = 1.0f;
+    constexpr auto SigMag = 1.3f;
+    auto NsMag = 5*SigMag;
+    constexpr auto CutLvl = 1.00f;
+    constexpr auto try_count = 100;
+    constexpr auto err_bound = 3.0f;
+
+    size_t succ_count;
+    s_sig_t succ;
+    s_sig_t SNR_axis;
+    s_sig_t avg_mags;
+
+    while(NsMag > 0) {
+        s_sig_t Mags;
+        succ_count =0;
+        for(int j =0; j < try_count; j++) {
+
+            /// Signal gen
+            c_sig_t complex_signal = complexSin(freq, count_of_samples);
+            complex_signal = amplifier(complex_signal, SigMag);
+
+            /// Noise gen
+            auto noise = genAWGN(count_of_samples, NsMag);
+
+            /// Noising
+            for (int i = 0; auto &e: complex_signal) {
+                auto n_s = noise[i];
+                e.real(e.real() + n_s);
+                e.imag(e.imag() + n_s);
+                i++;
+            }
+
+            /// Calculating Signal Original Magnitude
+            complex_signal = cutoff(complex_signal, CutLvl);
+            Mags.emplace_back(OriginalMagnitudeFind(complex_signal));
+
+            auto err_prs = (fabsf(SigMag - Mags.back()) / SigMag) * 100;
+            if (err_prs < err_bound) succ_count++;
+        }
+        succ.emplace_back(succ_count);
+        auto SNR = 20.0f * logf(SigMag / NsMag);
+        SNR_axis.emplace_back(SNR);
+        NsMag -= 0.01f;
+        auto Mag = signalMedValue(Mags);
+        avg_mags.emplace_back(Mag);
+        std::cout << "SNR = [" << SNR << "] Db" << '\t' << '\t' << "Average Magnitude = [" << Mag << "]"<< std::endl;
+    }
+    PlotConstructor::drawPlot(amplifier(succ, (1.0f/try_count) * 100.0f), SNR_axis, "Success via SNR");
+    PlotConstructor::drawPlot(avg_mags, SNR_axis, "Average Magnitude per " + std::to_string(try_count) + " test via SNR");
 }
