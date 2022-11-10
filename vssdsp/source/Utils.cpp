@@ -413,7 +413,10 @@ namespace vssdsp {
         auto top = signalMaxValue(mags), bot = signalMinValue(mags);
         auto eps = (top - bot)/10.0f;
         auto mags_interm = s_sig_t();
-        if(win == -1) win = (size_t)((float)mags.size() / 20.0f);
+        if(win == -1) {
+            win = (size_t) ((float) mags.size() / 20.0f);
+            if (win < 3) win = 3;
+        }
         for (float & mag : mags) {
             if (mag <= (bot + 3.0f * eps)) {
                 continue;
