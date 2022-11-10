@@ -2,5 +2,5 @@
 
 namespace vssdsp {
 
-    inline c_sig_t Heterodyne(float, const c_sig_t &, bool = true) noexcept;
+    c_sig_t Heterodyne(float, const c_sig_t &, bool = true) noexcept;
 }

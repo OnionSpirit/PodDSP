@@ -54,8 +54,8 @@ namespace vssdsp {
         }
 
         template<typename T>
-        static void drawPlot(const std::vector<T> &data_x,
-                             const std::vector<T> &data_y,
+        static void drawPlot(const std::vector<T> &data_y,
+                             const std::vector<T> &data_x,
                              const std::string &title = "NoTitle",
                              int step = 1)
         noexcept {

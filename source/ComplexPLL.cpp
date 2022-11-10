@@ -14,7 +14,7 @@ namespace vssdsp {
 
         phase_dependence = complexSignalPhaseDependence(incoming_samples);
         phase_dependence = phaseDependenceLining(phase_dependence);
-        diff_phase_dependence = smoother(differentiation(phase_dependence));
+        diff_phase_dependence = smooth(differentiation(phase_dependence), 3);
         second_diff_phase_dependence = differentiation(diff_phase_dependence);
         res_arr = complexCFOCompensator(incoming_samples, signalMedValue(second_diff_phase_dependence));
 

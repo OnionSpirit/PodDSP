@@ -2,7 +2,7 @@
 
 namespace vssdsp {
 
-    inline c_sig_t Heterodyne(float freq, const c_sig_t & converting_signal, bool rise) noexcept {
+    c_sig_t Heterodyne(float freq, const c_sig_t & converting_signal, bool rise) noexcept {
 
         auto len = converting_signal.size();
         auto ref_freq = complexSin(freq, len);
